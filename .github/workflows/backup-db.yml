@@ -9,19 +9,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - name: Install Supabase CLI
         run: |
           curl -fsSL https://raw.githubusercontent.com/supabase/cli/main/scripts/install.sh | sudo bash
+      
       - name: Generate Dump
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           mkdir -p backups
           supabase db dump -d "$SUPABASE_DB_URL" -f backups/backup-$(date +\%Y-\%m-\%d).sql
-                - name: Clean old backups (keep last 7)
+      
+      - name: Clean old backups (keep last 7)
         run: |
           cd backups
-          ls -t backup-*.sql | tail -n +8 | xargs -r rm
+          ls -t backup-*.sql | tail -n +8 | xargs -r rm || true
+      
       - name: Commit Backup
         run: |
           git config user.name "github-actions"
