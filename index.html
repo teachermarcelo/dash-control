@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grupo BNC - Gestão de Serviços</title>
+    <title>Grupo BNC RH - Plataforma de Gestão</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -25,22 +25,26 @@
     </script>
 
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
-        .sidebar-item { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        .sidebar-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
         .sidebar-item:hover, .sidebar-item.active { background-color: rgba(255,255,255,0.1); border-left-color: white; color: white; }
         .mobile-nav-item { transition: all 0.2s; }
         .mobile-nav-item.active { color: #ea580c; transform: translateY(-2px); }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .view-section { display: none; }
         .view-section.active { display: block; }
+        
+        /* Custom Scrollbar for Tables */
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50">
 
     <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-50 flex flex-col md:flex-row bg-white">
-        <!-- Laranja Esquerda -->
         <div class="w-full md:w-1/2 bg-brand-dark flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
             <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
             <div class="z-10 text-center">
@@ -49,26 +53,21 @@
                 <h2 class="text-2xl font-light tracking-widest uppercase">RH & Serviços</h2>
             </div>
         </div>
-        
-        <!-- Branco Direita -->
         <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
             <div class="w-full max-w-md fade-in">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Acesso ao Sistema</h2>
-                <p class="text-gray-500 mb-6 text-sm">Use os e-mails de teste para ver as diferentes visões:</p>
-                
-                <form onsubmit="handleLogin(event)" class="space-y-4">
+                <form onsubmit="handleLogin(event)" class="space-y-4 mt-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">E-MAIL</label>
-                        <input type="email" id="login-email" placeholder="ex: admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition">
+                        <input type="email" id="login-email" placeholder="admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">SENHA</label>
-                        <input type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition">
+                        <input type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none">
                     </div>
-                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95">Entrar</button>
+                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition">Entrar</button>
                 </form>
-                
-                <div class="mt-6 space-y-2 text-xs text-gray-400 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <div class="mt-6 space-y-1 text-xs text-gray-400 bg-gray-50 p-3 rounded-lg border border-gray-100">
                     <p><strong>Admin:</strong> admin@grupobnc.com.br</p>
                     <p><strong>Gestor:</strong> gestor@grupobnc.com.br</p>
                     <p><strong>Funcionário:</strong> maria@grupobnc.com.br</p>
@@ -80,17 +79,15 @@
     <!-- APP PRINCIPAL -->
     <div id="app-layout" class="hidden w-full h-full flex">
         
-        <!-- SIDEBAR -->
+        <!-- SIDEBAR COM TODAS AS ABAS -->
         <aside class="w-64 bg-brand-darker text-white hidden md:flex flex-col shadow-xl z-20">
             <div class="p-6 flex items-center gap-3 border-b border-white/10">
                 <i class="fas fa-cube text-2xl text-brand-light"></i>
-                <div><h1 class="font-bold text-lg">Grupo BNC</h1><span class="text-xs text-brand-light">RH System</span></div>
+                <div><h1 class="font-bold text-lg leading-tight">Grupo BNC</h1><span class="text-xs text-brand-light uppercase">RH System</span></div>
             </div>
-            
             <nav class="flex-1 py-6 space-y-1 overflow-y-auto" id="desktop-menu">
                 <!-- Menu injetado via JS -->
             </nav>
-
             <div class="p-4 border-t border-white/10 bg-brand-darker">
                 <div class="flex items-center gap-3">
                     <img src="" id="user-avatar" class="w-10 h-10 rounded-full border-2 border-brand-light">
@@ -116,44 +113,132 @@
                 
                 <!-- DASHBOARD ADMIN -->
                 <div id="view-admin-dashboard" class="view-section fade-in max-w-7xl mx-auto">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Visão Geral da Empresa</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-brand"><p class="text-gray-500 text-xs font-bold uppercase">Faturamento Mensal</p><h3 class="text-3xl font-bold text-gray-800 mt-1">R$ 142k</h3></div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500"><p class="text-gray-500 text-xs font-bold uppercase">Total de Contratos</p><h3 class="text-3xl font-bold text-gray-800 mt-1">15</h3></div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500"><p class="text-gray-500 text-xs font-bold uppercase">Equipe Ativa</p><h3 class="text-3xl font-bold text-gray-800 mt-1">210</h3></div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500"><p class="text-gray-500 text-xs font-bold uppercase">Ocorrências</p><h3 class="text-3xl font-bold text-gray-800 mt-1">3</h3></div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Painel Geral</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-brand">
+                            <p class="text-gray-500 text-xs font-bold uppercase">Contratos Ativos</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1">5 <span class="text-sm font-normal text-gray-400">contratos</span></h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500">
+                            <p class="text-gray-500 text-xs font-bold uppercase">Funcionários Ativos</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1">128 <span class="text-sm font-normal text-gray-400">funcionários</span></h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500">
+                            <p class="text-gray-500 text-xs font-bold uppercase">Tarefas de Hoje</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1">42 <span class="text-sm font-normal text-gray-400">concluídas / 58</span></h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500">
+                            <p class="text-gray-500 text-xs font-bold uppercase">Pagamentos Pendentes</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1">R$ 24.800 <span class="text-sm font-normal text-gray-400">em aberto</span></h3>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+                            <h3 class="font-bold text-gray-800 mb-4">Contratos</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-brand/10 text-brand rounded-lg flex items-center justify-center"><i class="fas fa-ship"></i></div>
+                                        <div><p class="font-bold text-sm">Itapoá Terminais Portuários</p><p class="text-xs text-gray-500">48 funcionários ativos</p></div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center"><i class="fas fa-building"></i></div>
+                                        <div><p class="font-bold text-sm">SEBRAE / SC</p><p class="text-xs text-gray-500">28 funcionários ativos</p></div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center justify-center">
+                            <h3 class="font-bold text-gray-800 mb-4 w-full text-left">Resumo de Tarefas</h3>
+                            <div class="relative w-40 h-40 rounded-full border-8 border-gray-100 flex items-center justify-center mb-4">
+                                <div class="absolute inset-0 rounded-full border-8 border-brand border-t-transparent rotate-45"></div>
+                                <div class="text-center"><span class="block text-2xl font-bold text-gray-800">72%</span><span class="text-xs text-gray-400">Conclusão</span></div>
+                            </div>
+                            <div class="w-full space-y-2 text-sm">
+                                <div class="flex justify-between"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-brand"></span> Concluídas</span><span class="font-bold">42</span></div>
+                                <div class="flex justify-between"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-300"></span> Pendentes</span><span class="font-bold">16</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- DASHBOARD GESTOR -->
-                <div id="view-manager-dashboard" class="view-section fade-in max-w-7xl mx-auto">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Gestão Regional: Janaúba</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-brand"><p class="text-gray-500 text-xs font-bold uppercase">Funcionários na Região</p><h3 class="text-3xl font-bold text-gray-800 mt-1">42</h3></div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500"><p class="text-gray-500 text-xs font-bold uppercase">Tarefas Pendentes</p><h3 class="text-3xl font-bold text-gray-800 mt-1">12</h3></div>
-                    </div>
+                <!-- PLACEHOLDERS PARA AS NOVAS ABAS -->
+                <div id="view-contracts" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-file-contract text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Módulo de Contratos</h2>
+                    <p class="text-gray-500">Gestão detalhada de todos os contratos por cliente.</p>
+                </div>
+
+                <div id="view-employees" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Módulo de Funcionários</h2>
+                    <p class="text-gray-500">Cadastro, documentos e histórico de toda a equipe.</p>
+                </div>
+
+                <div id="view-schedules" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-calendar-week text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Escalas e Tarefas</h2>
+                    <p class="text-gray-500">Visualização semanal de atividades e distribuição de equipes.</p>
+                </div>
+
+                <div id="view-financial" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Módulo Financeiro</h2>
+                    <p class="text-gray-500">Controle de faturamento, pagamentos pendentes e fluxo de caixa.</p>
+                </div>
+
+                <div id="view-hr" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-id-card text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Módulo de RH</h2>
+                    <p class="text-gray-500">Admissões, demissões, benefícios e controle de ponto.</p>
+                </div>
+
+                <div id="view-stock" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-boxes text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Controle de Estoque</h2>
+                    <p class="text-gray-500">Gestão de materiais de limpeza, EPIs e insumos gerais.</p>
+                </div>
+
+                <div id="view-reports" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Relatórios Gerenciais</h2>
+                    <p class="text-gray-500">Exportação de dados em PDF e Excel para tomada de decisão.</p>
+                </div>
+
+                <div id="view-communication" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Comunicação Interna</h2>
+                    <p class="text-gray-500">Avisos, comunicados e chat entre gestores e equipes.</p>
+                </div>
+
+                <div id="view-settings" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-cog text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Configurações do Sistema</h2>
+                    <p class="text-gray-500">Permissões de acesso, integração de APIs e preferências gerais.</p>
                 </div>
 
                 <!-- DASHBOARD COLABORADOR -->
                 <div id="view-employee-dashboard" class="view-section fade-in max-w-3xl mx-auto">
-                    <div class="flex justify-between items-end mb-6">
-                        <div><h2 class="text-2xl font-bold text-gray-800">Minhas Tarefas</h2><p class="text-gray-500 text-sm">Olá! Você tem atividades para hoje.</p></div>
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6 flex items-center gap-4">
+                        <img src="https://ui-avatars.com/api/?name=Maria+Silva&background=ea580c&color=fff" class="w-16 h-16 rounded-full">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Olá, Maria!</h2>
+                            <p class="text-gray-500 text-sm">SEBRAE / Janaúba</p>
+                        </div>
                     </div>
+                    <h3 class="font-bold text-gray-800 mb-4">Suas tarefas de hoje</h3>
                     <div class="space-y-4">
-                        <div class="bg-white rounded-xl shadow-sm overflow-hidden border-l-4 border-brand">
-                            <div class="p-4 flex gap-4">
-                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center text-brand text-2xl"><i class="fas fa-broom"></i></div>
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-start">
-                                        <h3 class="font-bold text-gray-800">Limpeza Refeitório</h3>
-                                        <span class="bg-orange-100 text-brand text-xs px-2 py-1 rounded font-bold">Pendente</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">SEBRAE - Janaúba • Prazo: 12:00</p>
-                                </div>
-                            </div>
-                            <div class="p-4 pt-0 flex gap-2">
-                                <button class="flex-1 bg-brand text-white py-3 rounded-lg font-bold text-sm shadow-md">INICIAR AGORA</button>
-                            </div>
+                        <div class="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between border-l-4 border-green-500">
+                            <div><h4 class="font-bold text-gray-800">Limpeza da Recepção</h4><p class="text-xs text-gray-500">08:00 • Concluído</p></div>
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">OK</span>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between border-l-4 border-brand">
+                            <div><h4 class="font-bold text-gray-800">Limpeza dos Banheiros</h4><p class="text-xs text-gray-500">10:00 • Em andamento</p></div>
+                            <button class="bg-brand text-white px-4 py-2 rounded-lg text-xs font-bold">INICIAR</button>
                         </div>
                     </div>
                 </div>
@@ -165,44 +250,32 @@
         <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30" id="mobile-menu"></nav>
     </div>
 
-    <!-- JAVASCRIPT DIRETO E SIMPLES -->
+    <!-- JAVASCRIPT -->
     <script>
-        // Dados de Usuários
         const users = [
             { email: 'admin@grupobnc.com.br', role: 'admin', name: 'Administrador Global' },
             { email: 'gestor@grupobnc.com.br', role: 'manager', name: 'Ana Paula' },
             { email: 'maria@grupobnc.com.br', role: 'employee', name: 'Maria Silva' }
         ];
 
-        // Função de Login
         function handleLogin(e) {
             e.preventDefault();
             const emailInput = document.getElementById('login-email').value.toLowerCase().trim();
-            
-            // Procura o usuário na lista
             const user = users.find(u => u.email === emailInput);
 
             if (user) {
-                // Se encontrou, esconde login e mostra app
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-layout').classList.remove('hidden');
-                
-                // Atualiza info do usuário na sidebar
                 document.getElementById('user-name-display').textContent = user.name;
                 document.getElementById('user-role-display').textContent = user.role === 'admin' ? 'Administrador' : user.role === 'manager' ? 'Gestor Regional' : 'Colaborador';
                 document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${user.name}&background=ea580c&color=fff`;
-
-                // Renderiza o menu correto
                 renderMenu(user.role);
-                
-                // Abre a dashboard correta
                 switchView(`${user.role}-dashboard`);
             } else {
-                alert('E-mail não encontrado! Use um dos e-mails de teste listados abaixo.');
+                alert('E-mail não encontrado! Use um dos e-mails de teste.');
             }
         }
 
-        // Renderiza Menu
         function renderMenu(role) {
             const desktopNav = document.getElementById('desktop-menu');
             const mobileNav = document.getElementById('mobile-menu');
@@ -210,16 +283,19 @@
             mobileNav.innerHTML = '';
 
             let items = [];
-            if (role === 'admin') {
+            if (role === 'admin' || role === 'manager') {
+                // MENU COMPLETO IGUAL IMAGEM 16
                 items = [
                     { id: 'admin-dashboard', icon: 'fa-home', label: 'Início' },
                     { id: 'contracts', icon: 'fa-file-contract', label: 'Contratos' },
-                    { id: 'employees', icon: 'fa-users', label: 'Funcionários' }
-                ];
-            } else if (role === 'manager') {
-                items = [
-                    { id: 'manager-dashboard', icon: 'fa-home', label: 'Minha Região' },
-                    { id: 'team', icon: 'fa-users', label: 'Minha Equipe' }
+                    { id: 'employees', icon: 'fa-users', label: 'Funcionários' },
+                    { id: 'schedules', icon: 'fa-calendar-week', label: 'Escalas e Tarefas' },
+                    { id: 'financial', icon: 'fa-chart-line', label: 'Financeiro' },
+                    { id: 'hr', icon: 'fa-id-card', label: 'RH' },
+                    { id: 'stock', icon: 'fa-boxes', label: 'Estoque' },
+                    { id: 'reports', icon: 'fa-file-alt', label: 'Relatórios' },
+                    { id: 'communication', icon: 'fa-comments', label: 'Comunicação' },
+                    { id: 'settings', icon: 'fa-cog', label: 'Configurações' }
                 ];
             } else {
                 items = [
@@ -229,29 +305,28 @@
             }
 
             items.forEach((item, index) => {
-                // Desktop
                 const dLink = document.createElement('a');
                 dLink.className = `sidebar-item flex items-center gap-4 px-6 py-3 cursor-pointer ${index === 0 ? 'active' : ''}`;
                 dLink.onclick = () => switchView(item.id);
                 dLink.innerHTML = `<i class="fas ${item.icon} w-5 text-center"></i> ${item.label}`;
                 desktopNav.appendChild(dLink);
 
-                // Mobile
-                const mBtn = document.createElement('button');
-                mBtn.className = `mobile-nav-item flex flex-col items-center gap-1 text-gray-400 w-1/4 ${index === 0 ? 'active text-brand' : ''}`;
-                mBtn.onclick = () => switchView(item.id);
-                mBtn.innerHTML = `<i class="fas ${item.icon} text-xl"></i><span class="text-[10px] font-medium">${item.label}</span>`;
-                mobileNav.appendChild(mBtn);
+                // Mobile Nav simplificado para não lotar a tela
+                if (index < 4) { 
+                    const mBtn = document.createElement('button');
+                    mBtn.className = `mobile-nav-item flex flex-col items-center gap-1 text-gray-400 w-1/4 ${index === 0 ? 'active text-brand' : ''}`;
+                    mBtn.onclick = () => switchView(item.id);
+                    mBtn.innerHTML = `<i class="fas ${item.icon} text-xl"></i><span class="text-[10px] font-medium">${item.label}</span>`;
+                    mobileNav.appendChild(mBtn);
+                }
             });
         }
 
-        // Troca de Telas
         function switchView(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(`view-${viewId}`);
             if(target) target.classList.add('active');
 
-            // Atualiza classe ativa nos menus
             document.querySelectorAll('.sidebar-item').forEach(item => {
                 item.classList.remove('active');
                 if(item.getAttribute('onclick').includes(viewId)) item.classList.add('active');
