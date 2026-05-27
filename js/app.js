@@ -1,10 +1,13 @@
 // js/app.js
+// Sistema de Gestão - Grupo BNC RH
+
 let currentUser = null;
 let currentRole = 'employee';
 
-// Verifica se o Supabase está carregado
-if (typeof supabase === 'undefined') {
-    console.error('❌ Supabase não inicializado! Verifique se config.js está carregado antes de app.js');
+// Verifica se o cliente Supabase está disponível
+const supabase = window.supabaseClient;
+if (!supabase) {
+    console.error('❌ ERRO CRÍTICO: supabaseClient não inicializado!');
 }
 
 // Toggle formulário de reset
@@ -27,7 +30,6 @@ async function handleResetPassword() {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin
         });
-
         if (error) throw error;
         alert('Link de redefinição enviado! Verifique sua caixa de entrada.');
         toggleResetForm();
@@ -54,32 +56,18 @@ async function handleLogin(e) {
     btn.disabled = true;
 
     try {
-        console.log('🔐 Tentando login com:', email);
-        
-        const { data, error } = await supabase.auth.signInWithPassword({ 
-            email, 
-            password 
-        });
-        
-        if (error) {
-            console.error('❌ Erro no login:', error);
-            throw error;
-        }
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
 
         currentUser = data.user;
-        console.log('✅ Login sucesso, user ID:', currentUser.id);
         
         // Buscar perfil na tabela bnc_profiles
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile } = await supabase
             .from('bnc_profiles')
             .select('role, full_name, region')
             .eq('id', currentUser.id)
             .single();
             
-        if (profileError) {
-            console.warn('⚠️ Perfil não encontrado, usando role padrão:', profileError);
-        }
-        
         currentRole = profile?.role || 'employee';
         
         // Atualizar UI
@@ -105,7 +93,7 @@ async function handleLogin(e) {
         loadDashboardData();
         
     } catch (error) {
-        console.error('❌ Erro no handleLogin:', error);
+        console.error('❌ Erro no login:', error);
         alert('Erro ao entrar: ' + (error.message || 'Verifique suas credenciais.'));
     } finally {
         if (btn) {
@@ -118,26 +106,20 @@ async function handleLogin(e) {
 // Carregar Dashboard
 async function loadDashboardData() {
     try {
-        // Buscar contratos ativos
-        const { data: contracts, error: contractsError } = await supabase
+        const { data: contracts } = await supabase
             .from('bnc_contracts')
             .select('*')
             .eq('status', 'active');
             
-        if (contractsError) throw contractsError;
-        
         const totalContracts = contracts?.length || 0;
         const totalEmployees = contracts?.reduce((sum, c) => sum + (c.employee_count || 0), 0) || 0;
         
-        // Buscar tarefas do dia
         const today = new Date().toISOString().split('T')[0];
-        const { data: tasks, error: tasksError } = await supabase
+        const { data: tasks } = await supabase
             .from('bnc_tasks')
             .select('status')
             .eq('scheduled_date', today);
             
-        if (tasksError) throw tasksError;
-        
         const completed = tasks?.filter(t => t.status === 'completed').length || 0;
         
         // Atualizar KPIs
@@ -175,7 +157,6 @@ async function loadDashboardData() {
 function renderMenu(role) {
     const desktopNav = document.getElementById('desktop-menu');
     const mobileNav = document.getElementById('mobile-menu');
-    
     if (!desktopNav || !mobileNav) return;
     
     desktopNav.innerHTML = ''; 
@@ -194,14 +175,12 @@ function renderMenu(role) {
     ];
 
     items.forEach((item, i) => {
-        // Desktop
         const d = document.createElement('a');
         d.className = `sidebar-item flex items-center gap-4 px-6 py-3 cursor-pointer ${i===0?'active':''}`;
         d.onclick = () => switchView(item.id);
         d.innerHTML = `<i class="fas ${item.icon} w-5 text-center"></i> ${item.label}`;
         desktopNav.appendChild(d);
 
-        // Mobile (apenas primeiros 4 itens)
         if (i < 4) {
             const m = document.createElement('button');
             m.className = `mobile-nav-item flex flex-col items-center gap-1 text-gray-400 w-1/4 ${i===0?'active text-brand':''}`;
@@ -213,20 +192,15 @@ function renderMenu(role) {
 }
 
 function switchView(id) {
-    // Esconder todas as views
     document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
-    
-    // Mostrar a view selecionada
     const target = document.getElementById(`view-${id}`);
     if (target) target.classList.add('active');
     
-    // Atualizar sidebar desktop
     document.querySelectorAll('.sidebar-item').forEach(e => {
         e.classList.remove('active');
         if (e.getAttribute('onclick')?.includes(id)) e.classList.add('active');
     });
     
-    // Atualizar nav mobile
     document.querySelectorAll('.mobile-nav-item').forEach(e => {
         e.classList.remove('active', 'text-brand'); 
         e.classList.add('text-gray-400');
@@ -247,15 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const headerDate = document.getElementById('header-date');
     if (headerDate) {
         headerDate.textContent = new Date().toLocaleDateString('pt-BR', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
         });
     }
 });
 
-// Exportar funções para o escopo global (necessário para onclick no HTML)
+// Exportar funções globalmente
 window.handleLogin = handleLogin;
 window.toggleResetForm = toggleResetForm;
 window.handleResetPassword = handleResetPassword;
