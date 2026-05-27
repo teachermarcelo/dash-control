@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Painel de Diagnóstico - Grupo BNC RH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0f172a; color: #e2e8f0; }
+        .status-ok { color: #4ade80; }
+        .status-error { color: #f87171; }
+        .status-warn { color: #fbbf24; }
+        .log-box { background: #1e293b; border-left: 4px solid #3b82f6; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; }
+        .code-snippet { background: #0f172a; padding: 0.5rem; border-radius: 0.25rem; font-size: 0.875rem; overflow-x: auto; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <header class="mb-8 border-b border-slate-700 pb-4">
+            <h1 class="text-3xl font-bold text-blue-400"><i class="fas fa-stethoscope mr-2"></i> Painel de Diagnóstico Investigativo</h1>
+            <p class="text-slate-400 mt-2">Relatório completo de saúde do sistema Grupo BNC RH</p>
+            <button onclick="runDiagnostics()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition">
+                <i class="fas fa-sync-alt mr-2"></i> Rodar Diagnóstico Completo
+            </button>
+        </header>
+
+        <div id="diagnostic-results" class="space-y-6">
+            <!-- Resultados serão injetados aqui -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configurações (mesmas do config.js)
+        const SUPABASE_URL = 'https://rvgcniaowzmsudzliozf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z2NuaWFvd3ptc3Vkemxpb3pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQxNzQsImV4cCI6MjA5MTQwMDE3NH0.uwwKFLuK-XyPoXPrB6_CseRTiD9d-iyMQSPWrFw-l-I';
+        
+        let supabaseClient = null;
+        let results = [];
+
+        function addResult(title, status, message, details = null) {
+            const icon = status === 'ok' ? 'fa-check-circle' : status === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+            const colorClass = status === 'ok' ? 'status-ok' : status === 'error' ? 'status-error' : 'status-warn';
+            
+            results.push({ title, status, message, details });
+            
+            const html = `
+                <div class="log-box border-${status === 'ok' ? 'green' : status === 'error' ? 'red' : 'yellow'}-500">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-lg ${colorClass}"><i class="fas ${icon} mr-2"></i>${title}</h3>
+                        <span class="text-xs uppercase font-bold ${colorClass}">${status}</span>
+                    </div>
+                    <p class="text-slate-300 mb-2">${message}</p>
+                    ${details ? `<div class="code-snippet text-slate-400">${details}</div>` : ''}
+                </div>
+            `;
+            document.getElementById('diagnostic-results').innerHTML += html;
+        }
+
+        async function runDiagnostics() {
+            document.getElementById('diagnostic-results').innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i><p class="mt-4">Investigando sistema...</p></div>';
+            results = [];
+
+            // 1. Verificar Supabase Library
+            try {
+                if (typeof window.supabase === 'undefined') throw new Error('Biblioteca Supabase não carregada');
+                addResult('Biblioteca Supabase', 'ok', 'CDN carregado com sucesso.');
+            } catch (e) {
+                addResult('Biblioteca Supabase', 'error', 'Falha ao carregar biblioteca.', e.message);
+            }
+
+            // 2. Inicializar Cliente
+            try {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                addResult('Inicialização do Cliente', 'ok', 'Cliente Supabase criado com sucesso.');
+            } catch (e) {
+                addResult('Inicialização do Cliente', 'error', 'Erro ao criar cliente.', e.message);
+                return;
+            }
+
+            // 3. Testar Conexão com API
+            try {
+                const { data, error } = await supabaseClient.from('bnc_contracts').select('count').limit(1);
+                if (error) throw error;
+                addResult('Conexão com API', 'ok', 'Comunicação com Supabase estabelecida.');
+            } catch (e) {
+                addResult('Conexão com API', 'error', 'Falha na conexão ou tabela não existe.', `Erro: ${e.message}`);
+            }
+
+            // 4. Verificar Tabelas Existentes
+            const tables = ['bnc_profiles', 'bnc_contracts', 'bnc_employees', 'bnc_tasks'];
+            for (const table of tables) {
+                try {
+                    const { error } = await supabaseClient.from(table).select('count').limit(1);
+                    if (error && error.code === '42P01') {
+                        addResult(`Tabela: ${table}`, 'error', 'Tabela não encontrada no banco de dados.', 'Execute o SQL de criação das tabelas no Supabase SQL Editor.');
+                    } else {
+                        addResult(`Tabela: ${table}`, 'ok', 'Tabela existe e está acessível.');
+                    }
+                } catch (e) {
+                    addResult(`Tabela: ${table}`, 'warn', 'Erro inesperado ao verificar tabela.', e.message);
+                }
+            }
+
+            // 5. Verificar Usuário Admin no Auth
+            try {
+                // Tenta fazer login com admin para ver se ele existe
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: 'admin@grupobnc.com.br',
+                    password: 'BNC@2026#Admin' // Senha padrão sugerida
+                });
+                
+                if (error) {
+                    if (error.message.includes('Invalid login credentials')) {
+                        addResult('Usuário Admin (Auth)', 'warn', 'Usuário não encontrado ou senha incorreta no Supabase Auth.', 'Crie o usuário em Authentication > Users no painel do Supabase.');
+                    } else {
+                        addResult('Usuário Admin (Auth)', 'error', 'Erro ao verificar autenticação.', error.message);
+                    }
+                } else {
+                    addResult('Usuário Admin (Auth)', 'ok', 'Login de admin realizado com sucesso no Auth.');
+                    // Logout após teste
+                    await supabaseClient.auth.signOut();
+                }
+            } catch (e) {
+                addResult('Usuário Admin (Auth)', 'error', 'Erro crítico no teste de auth.', e.message);
+            }
+
+            // 6. Verificar Perfil do Admin na Tabela bnc_profiles
+            try {
+                const { data: user } = await supabaseClient.auth.getUser();
+                if (user?.user) {
+                    const { data: profile, error } = await supabaseClient.from('bnc_profiles').select('*').eq('id', user.user.id).single();
+                    if (error || !profile) {
+                        addResult('Perfil do Admin (DB)', 'error', 'Usuário logado não tem perfil na tabela bnc_profiles.', 'Insira uma linha na tabela bnc_profiles com o ID do usuário do Auth.');
+                    } else {
+                        addResult('Perfil do Admin (DB)', 'ok', `Perfil encontrado. Role: ${profile.role || 'não definido'}.`);
+                    }
+                }
+            } catch (e) {
+                addResult('Perfil do Admin (DB)', 'warn', 'Não foi possível verificar perfil sem login ativo.', e.message);
+            }
+
+            // 7. Verificar Arquivos JS Locais
+            try {
+                const responseConfig = await fetch('js/config.js');
+                if (!responseConfig.ok) throw new Error('Arquivo não encontrado (404)');
+                addResult('Arquivo: js/config.js', 'ok', 'Arquivo de configuração presente e acessível.');
+            } catch (e) {
+                addResult('Arquivo: js/config.js', 'error', 'Arquivo faltando ou caminho incorreto.', 'Certifique-se de que o arquivo está na pasta js/ no GitHub.');
+            }
+
+            try {
+                const responseApp = await fetch('js/app.js');
+                if (!responseApp.ok) throw new Error('Arquivo não encontrado (404)');
+                addResult('Arquivo: js/app.js', 'ok', 'Arquivo de lógica presente e acessível.');
+            } catch (e) {
+                addResult('Arquivo: js/app.js', 'error', 'Arquivo faltando ou caminho incorreto.', 'Certifique-se de que o arquivo está na pasta js/ no GitHub.');
+            }
+
+            // 8. Resumo Final
+            const errors = results.filter(r => r.status === 'error').length;
+            const warns = results.filter(r => r.status === 'warn').length;
+            
+            let summaryHtml = `<div class="bg-slate-800 p-6 rounded-xl border border-slate-700 mt-8">
+                <h2 class="text-xl font-bold mb-4">Resumo da Investigação</h2>
+                <p class="mb-2"><strong>Total de Verificações:</strong> ${results.length}</p>
+                <p class="mb-2 status-ok"><strong>Sucessos:</strong> ${results.filter(r => r.status === 'ok').length}</p>
+                <p class="mb-2 status-warn"><strong>Avisos:</strong> ${warns}</p>
+                <p class="mb-4 status-error"><strong>Erros Críticos:</strong> ${errors}</p>
+                ${errors === 0 ? '<p class="text-green-400 font-bold"><i class="fas fa-check-double mr-2"></i>Sistema pronto para uso! Todos os testes passaram.</p>' : '<p class="text-red-400 font-bold"><i class="fas fa-exclamation-circle mr-2"></i>Corrija os erros acima antes de tentar usar o sistema.</p>'}
+            </div>`;
+            
+            document.getElementById('diagnostic-results').innerHTML += summaryHtml;
+        }
+
+        // Rodar automaticamente ao carregar
+        window.onload = runDiagnostics;
+    </script>
+</body>
+</html>
