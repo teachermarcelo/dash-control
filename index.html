@@ -38,10 +38,9 @@
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50">
 
-    <!-- ============================================ -->
-    <!-- MÓDULO DE LOGIN                              -->
-    <!-- ============================================ -->
+    <!-- TELA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-50 flex flex-col md:flex-row bg-white">
+        <!-- Laranja Esquerda -->
         <div class="w-full md:w-1/2 bg-brand-dark flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
             <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
             <div class="z-10 text-center">
@@ -51,24 +50,25 @@
             </div>
         </div>
         
+        <!-- Branco Direita -->
         <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
             <div class="w-full max-w-md fade-in">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Acesso ao Sistema</h2>
                 <p class="text-gray-500 mb-6 text-sm">Use os e-mails de teste para ver as diferentes visões:</p>
                 
-                <form onsubmit="AuthModule.handleLogin(event)" class="space-y-4">
+                <form onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">E-mail</label>
-                        <input type="email" id="login-email" placeholder="ex: admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">E-MAIL</label>
+                        <input type="email" id="login-email" placeholder="ex: admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Senha</label>
-                        <input type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">SENHA</label>
+                        <input type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition">
                     </div>
-                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition">Entrar</button>
+                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95">Entrar</button>
                 </form>
                 
-                <div class="mt-6 space-y-2 text-xs text-gray-400 bg-gray-50 p-3 rounded-lg">
+                <div class="mt-6 space-y-2 text-xs text-gray-400 bg-gray-50 p-3 rounded-lg border border-gray-100">
                     <p><strong>Admin:</strong> admin@grupobnc.com.br</p>
                     <p><strong>Gestor:</strong> gestor@grupobnc.com.br</p>
                     <p><strong>Funcionário:</strong> maria@grupobnc.com.br</p>
@@ -77,12 +77,10 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- LAYOUT PRINCIPAL DO APP                      -->
-    <!-- ============================================ -->
+    <!-- APP PRINCIPAL -->
     <div id="app-layout" class="hidden w-full h-full flex">
         
-        <!-- SIDEBAR DESKTOP -->
+        <!-- SIDEBAR -->
         <aside class="w-64 bg-brand-darker text-white hidden md:flex flex-col shadow-xl z-20">
             <div class="p-6 flex items-center gap-3 border-b border-white/10">
                 <i class="fas fa-cube text-2xl text-brand-light"></i>
@@ -90,12 +88,12 @@
             </div>
             
             <nav class="flex-1 py-6 space-y-1 overflow-y-auto" id="desktop-menu">
-                <!-- Itens injetados via JS -->
+                <!-- Menu injetado via JS -->
             </nav>
 
             <div class="p-4 border-t border-white/10 bg-brand-darker">
                 <div class="flex items-center gap-3">
-                    <img src="https://ui-avatars.com/api/?name=User&background=ea580c&color=fff" id="user-avatar" class="w-10 h-10 rounded-full border-2 border-brand-light">
+                    <img src="" id="user-avatar" class="w-10 h-10 rounded-full border-2 border-brand-light">
                     <div>
                         <p class="text-sm font-semibold" id="user-name-display">Usuário</p>
                         <p class="text-xs text-brand-light" id="user-role-display">Role</p>
@@ -125,27 +123,23 @@
                         <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500"><p class="text-gray-500 text-xs font-bold uppercase">Equipe Ativa</p><h3 class="text-3xl font-bold text-gray-800 mt-1">210</h3></div>
                         <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500"><p class="text-gray-500 text-xs font-bold uppercase">Ocorrências</p><h3 class="text-3xl font-bold text-gray-800 mt-1">3</h3></div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-sm p-6"><h3 class="font-bold text-gray-800 mb-4">Contratos Recentes</h3><p class="text-gray-500">Lista de contratos ativos e pendentes de renovação...</p></div>
                 </div>
 
-                <!-- DASHBOARD GESTOR REGIONAL -->
+                <!-- DASHBOARD GESTOR -->
                 <div id="view-manager-dashboard" class="view-section fade-in max-w-7xl mx-auto">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Gestão Regional: Janaúba</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-brand"><p class="text-gray-500 text-xs font-bold uppercase">Funcionários na Região</p><h3 class="text-3xl font-bold text-gray-800 mt-1">42</h3></div>
                         <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500"><p class="text-gray-500 text-xs font-bold uppercase">Tarefas Pendentes</p><h3 class="text-3xl font-bold text-gray-800 mt-1">12</h3></div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-sm p-6"><h3 class="font-bold text-gray-800 mb-4">Desempenho da Equipe</h3><p class="text-gray-500">Gráficos de produtividade por funcionário...</p></div>
                 </div>
 
-                <!-- DASHBOARD COLABORADOR (MOBILE STYLE) -->
+                <!-- DASHBOARD COLABORADOR -->
                 <div id="view-employee-dashboard" class="view-section fade-in max-w-3xl mx-auto">
                     <div class="flex justify-between items-end mb-6">
-                        <div><h2 class="text-2xl font-bold text-gray-800">Minhas Tarefas</h2><p class="text-gray-500 text-sm">Olá, Maria! Você tem 3 atividades hoje.</p></div>
+                        <div><h2 class="text-2xl font-bold text-gray-800">Minhas Tarefas</h2><p class="text-gray-500 text-sm">Olá! Você tem atividades para hoje.</p></div>
                     </div>
-
                     <div class="space-y-4">
-                        <!-- Card Tarefa 1 -->
                         <div class="bg-white rounded-xl shadow-sm overflow-hidden border-l-4 border-brand">
                             <div class="p-4 flex gap-4">
                                 <div class="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center text-brand text-2xl"><i class="fas fa-broom"></i></div>
@@ -161,20 +155,6 @@
                                 <button class="flex-1 bg-brand text-white py-3 rounded-lg font-bold text-sm shadow-md">INICIAR AGORA</button>
                             </div>
                         </div>
-
-                        <!-- Card Tarefa 2 -->
-                        <div class="bg-white rounded-xl shadow-sm overflow-hidden border-l-4 border-green-500 opacity-75">
-                            <div class="p-4 flex gap-4">
-                                <div class="w-16 h-16 bg-green-50 rounded-lg flex-shrink-0 flex items-center justify-center text-green-600 text-2xl"><i class="fas fa-check"></i></div>
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-start">
-                                        <h3 class="font-bold text-gray-800">Higienização Banheiros</h3>
-                                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">Concluído</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Finalizado às 09:30</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -182,116 +162,109 @@
         </main>
 
         <!-- MOBILE NAV -->
-        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30" id="mobile-menu">
-            <!-- Injetado via JS -->
-        </nav>
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30" id="mobile-menu"></nav>
     </div>
 
-    <!-- ============================================ -->
-    <!-- JAVASCRIPT MODULARIZADO                      -->
-    <!-- ============================================ -->
+    <!-- JAVASCRIPT DIRETO E SIMPLES -->
     <script>
-        // --- MÓDULO DE DADOS (MOCK) ---
-        const DataModule = {
-            users: [
-                { email: 'admin@grupobnc.com.br', role: 'admin', name: 'Administrador Global', region: 'Todas' },
-                { email: 'gestor@grupobnc.com.br', role: 'manager', name: 'Ana Paula', region: 'Janaúba' },
-                { email: 'maria@grupobnc.com.br', role: 'employee', name: 'Maria Silva', region: 'Janaúba' }
-            ],
-            getMenuItems: function(role) {
-                if (role === 'admin') return [
-                    { id: 'admin-dashboard', icon: 'fa-home', label: 'Início' },
-                    { id: 'contracts', icon: 'fa-file-contract', label: 'Contratos' },
-                    { id: 'employees', icon: 'fa-users', label: 'Funcionários' },
-                    { id: 'financial', icon: 'fa-chart-line', label: 'Financeiro' }
-                ];
-                if (role === 'manager') return [
-                    { id: 'manager-dashboard', icon: 'fa-home', label: 'Minha Região' },
-                    { id: 'team', icon: 'fa-users', label: 'Minha Equipe' },
-                    { id: 'reports', icon: 'fa-file-alt', label: 'Relatórios' }
-                ];
-                return [
-                    { id: 'employee-dashboard', icon: 'fa-clipboard-list', label: 'Tarefas' },
-                    { id: 'profile', icon: 'fa-user', label: 'Meu Perfil' }
-                ];
-            }
-        };
+        // Dados de Usuários
+        const users = [
+            { email: 'admin@grupobnc.com.br', role: 'admin', name: 'Administrador Global' },
+            { email: 'gestor@grupobnc.com.br', role: 'manager', name: 'Ana Paula' },
+            { email: 'maria@grupobnc.com.br', role: 'employee', name: 'Maria Silva' }
+        ];
 
-        // --- MÓDULO DE AUTENTICAÇÃO ---
-        const AuthModule = {
-            currentUser: null,
-            handleLogin: function(e) {
-                e.preventDefault();
-                const email = document.getElementById('login-email').value.toLowerCase();
-                const user = DataModule.users.find(u => u.email === email);
+        // Função de Login
+        function handleLogin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('login-email').value.toLowerCase().trim();
+            
+            // Procura o usuário na lista
+            const user = users.find(u => u.email === emailInput);
 
-                if (user) {
-                    this.currentUser = user;
-                    UI.updateUserInfo(user);
-                    UI.renderMenu(user.role);
-                    UI.switchView(`${user.role}-dashboard`);
-                    
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('app-layout').classList.remove('hidden');
-                } else {
-                    alert('Usuário não encontrado. Use um dos e-mails de teste.');
-                }
-            }
-        };
-
-        // --- MÓDULO DE INTERFACE (UI) ---
-        const UI = {
-            updateUserInfo: function(user) {
+            if (user) {
+                // Se encontrou, esconde login e mostra app
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-layout').classList.remove('hidden');
+                
+                // Atualiza info do usuário na sidebar
                 document.getElementById('user-name-display').textContent = user.name;
                 document.getElementById('user-role-display').textContent = user.role === 'admin' ? 'Administrador' : user.role === 'manager' ? 'Gestor Regional' : 'Colaborador';
                 document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${user.name}&background=ea580c&color=fff`;
-            },
 
-            renderMenu: function(role) {
-                const items = DataModule.getMenuItems(role);
-                const desktopNav = document.getElementById('desktop-menu');
-                const mobileNav = document.getElementById('mobile-menu');
+                // Renderiza o menu correto
+                renderMenu(user.role);
                 
-                desktopNav.innerHTML = '';
-                mobileNav.innerHTML = '';
-
-                items.forEach((item, index) => {
-                    // Desktop Item
-                    const dLink = document.createElement('a');
-                    dLink.className = `sidebar-item flex items-center gap-4 px-6 py-3 cursor-pointer ${index === 0 ? 'active' : ''}`;
-                    dLink.onclick = () => this.switchView(item.id);
-                    dLink.innerHTML = `<i class="fas ${item.icon} w-5 text-center"></i> ${item.label}`;
-                    desktopNav.appendChild(dLink);
-
-                    // Mobile Item
-                    const mBtn = document.createElement('button');
-                    mBtn.className = `mobile-nav-item flex flex-col items-center gap-1 text-gray-400 w-1/4 ${index === 0 ? 'active text-brand' : ''}`;
-                    mBtn.onclick = () => this.switchView(item.id);
-                    mBtn.innerHTML = `<i class="fas ${item.icon} text-xl"></i><span class="text-[10px] font-medium">${item.label}</span>`;
-                    mobileNav.appendChild(mBtn);
-                });
-            },
-
-            switchView: function(viewId) {
-                document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-                const target = document.getElementById(`view-${viewId}`);
-                if(target) target.classList.add('active');
-
-                // Update Active States in Menus
-                document.querySelectorAll('.sidebar-item').forEach(item => {
-                    item.classList.remove('active');
-                    if(item.getAttribute('onclick').includes(viewId)) item.classList.add('active');
-                });
-                document.querySelectorAll('.mobile-nav-item').forEach(item => {
-                    item.classList.remove('active', 'text-brand');
-                    item.classList.add('text-gray-400');
-                    if(item.getAttribute('onclick').includes(viewId)) {
-                        item.classList.add('active', 'text-brand');
-                        item.classList.remove('text-gray-400');
-                    }
-                });
+                // Abre a dashboard correta
+                switchView(`${user.role}-dashboard`);
+            } else {
+                alert('E-mail não encontrado! Use um dos e-mails de teste listados abaixo.');
             }
-        };
+        }
+
+        // Renderiza Menu
+        function renderMenu(role) {
+            const desktopNav = document.getElementById('desktop-menu');
+            const mobileNav = document.getElementById('mobile-menu');
+            desktopNav.innerHTML = '';
+            mobileNav.innerHTML = '';
+
+            let items = [];
+            if (role === 'admin') {
+                items = [
+                    { id: 'admin-dashboard', icon: 'fa-home', label: 'Início' },
+                    { id: 'contracts', icon: 'fa-file-contract', label: 'Contratos' },
+                    { id: 'employees', icon: 'fa-users', label: 'Funcionários' }
+                ];
+            } else if (role === 'manager') {
+                items = [
+                    { id: 'manager-dashboard', icon: 'fa-home', label: 'Minha Região' },
+                    { id: 'team', icon: 'fa-users', label: 'Minha Equipe' }
+                ];
+            } else {
+                items = [
+                    { id: 'employee-dashboard', icon: 'fa-clipboard-list', label: 'Tarefas' },
+                    { id: 'profile', icon: 'fa-user', label: 'Perfil' }
+                ];
+            }
+
+            items.forEach((item, index) => {
+                // Desktop
+                const dLink = document.createElement('a');
+                dLink.className = `sidebar-item flex items-center gap-4 px-6 py-3 cursor-pointer ${index === 0 ? 'active' : ''}`;
+                dLink.onclick = () => switchView(item.id);
+                dLink.innerHTML = `<i class="fas ${item.icon} w-5 text-center"></i> ${item.label}`;
+                desktopNav.appendChild(dLink);
+
+                // Mobile
+                const mBtn = document.createElement('button');
+                mBtn.className = `mobile-nav-item flex flex-col items-center gap-1 text-gray-400 w-1/4 ${index === 0 ? 'active text-brand' : ''}`;
+                mBtn.onclick = () => switchView(item.id);
+                mBtn.innerHTML = `<i class="fas ${item.icon} text-xl"></i><span class="text-[10px] font-medium">${item.label}</span>`;
+                mobileNav.appendChild(mBtn);
+            });
+        }
+
+        // Troca de Telas
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(`view-${viewId}`);
+            if(target) target.classList.add('active');
+
+            // Atualiza classe ativa nos menus
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.getAttribute('onclick').includes(viewId)) item.classList.add('active');
+            });
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active', 'text-brand');
+                item.classList.add('text-gray-400');
+                if(item.getAttribute('onclick').includes(viewId)) {
+                    item.classList.add('active', 'text-brand');
+                    item.classList.remove('text-gray-400');
+                }
+            });
+        }
 
         function logout() { location.reload(); }
         document.getElementById('header-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
