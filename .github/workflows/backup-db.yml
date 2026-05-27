@@ -1,8 +1,8 @@
 name: Daily Supabase Backup
 on:
   schedule:
-    - cron: '0 3 * * *' # Todo dia às 03:00 UTC
-  workflow_dispatch: # Permite rodar manualmente
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 
 jobs:
   backup:
