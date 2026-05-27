@@ -1,0 +1,27 @@
+name: Daily Supabase Backup
+on:
+  schedule:
+    - cron: '0 3 * * *' # Todo dia às 03:00 UTC
+  workflow_dispatch: # Permite rodar manualmente
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Supabase CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/supabase/cli/main/scripts/install.sh | sudo bash
+      - name: Generate Dump
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir -p backups
+          supabase db dump -d "$SUPABASE_DB_URL" -f backups/backup-$(date +\%Y-\%m-\%d).sql
+      - name: Commit Backup
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add backups/
+          git commit -m "Backup diário: $(date +\%Y-\%m-\%d)" || echo "No changes"
+          git push
