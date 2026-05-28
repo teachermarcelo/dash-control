@@ -1,102 +1,31 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste de Login - Grupo BNC RH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { font-family: 'Poppins', sans-serif; background: #f3f4f6; }
-        .log-box { background: white; border-left: 4px solid #ea580c; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .status-ok { border-left-color: #10b981 !important; color: #10b981; }
-        .status-error { border-left-color: #ef4444 !important; color: #ef4444; }
-    </style>
-</head>
-<body class="flex items-center justify-center min-h-screen p-4">
-
-    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">🔐 Teste de Login Direto</h1>
-        
-        <!-- Formulário -->
-        <form onsubmit="testLogin(event)" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                <input type="email" id="test-email" value="admin@grupobnc.com.br" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-                <input type="password" id="test-password" value="BNC@2026#Admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
-            </div>
-            <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg transition">Testar Login</button>
-        </form>
-
-        <!-- Área de Logs -->
-        <div id="logs" class="mt-6 space-y-2">
-            <p class="text-gray-500 text-sm text-center">Os resultados aparecerão aqui...</p>
-        </div>
-    </div>
+<html>
+<head><title>Login Simples</title></head>
+<body>
+    <h1>Teste de Login Minimalista</h1>
+    <button onclick="doLogin()">CLIQUE AQUI PARA TESTAR LOGIN</button>
+    <div id="result"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const SUPABASE_URL = 'https://rvgcniaowzmsudzliozf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z2NuaWFvd3ptc3Vkemxpb3pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQxNzQsImV4cCI6MjA5MTQwMDE3NH0.uwwKFLuK-XyPoXPrB6_CseRTiD9d-iyMQSPWrFw-l-I';
-        
-        // Inicializa o cliente
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        function addLog(message, status = 'info') {
-            const logs = document.getElementById('logs');
-            const colorClass = status === 'ok' ? 'status-ok' : status === 'error' ? 'status-error' : '';
-            const icon = status === 'ok' ? '✅' : status === 'error' ? '❌' : 'ℹ️';
-            
-            logs.innerHTML += `<div class="log-box ${colorClass}">${icon} ${message}</div>`;
-        }
+        const client = window.supabase.createClient(
+            'https://rvgcniaowzmsudzliozf.supabase.co', 
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z2NuaWFvd3ptc3Vkemxpb3pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQxNzQsImV4cCI6MjA5MTQwMDE3NH0.uwwKFLuK-XyPoXPrB6_CseRTiD9d-iyMQSPWrFw-l-I'
+        );
 
-        async function testLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('test-email').value;
-            const password = document.getElementById('test-password').value;
-            const logs = document.getElementById('logs');
+        async function doLogin() {
+            document.getElementById('result').innerText = 'Testando...';
+            const res = await client.auth.signInWithPassword({
+                email: 'admin@grupobnc.com.br',
+                password: 'BNC@2026#Admin'
+            });
             
-            logs.innerHTML = '<div class="text-center text-gray-500"><i class="fas fa-spinner fa-spin"></i> Testando...</div>';
-            
-            try {
-                addLog('1. Iniciando conexão com Supabase...', 'info');
-                
-                // Tenta logar
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                
-                if (error) {
-                    addLog(`2. Erro no Auth: ${error.message}`, 'error');
-                    return;
-                }
-                
-                addLog('2. Login no Auth realizado com sucesso!', 'ok');
-                addLog(`3. User ID: ${data.user.id}`, 'info');
-                
-                // Busca perfil
-                addLog('4. Buscando perfil na tabela bnc_profiles...', 'info');
-                const { data: profile, error: profileError } = await supabase
-                    .from('bnc_profiles')
-                    .select('*')
-                    .eq('id', data.user.id)
-                    .single();
-                    
-                if (profileError) {
-                    addLog(`5. Erro ao buscar perfil: ${profileError.message}`, 'error');
-                    addLog('Dica: Verifique se o usuário tem uma linha na tabela bnc_profiles com o mesmo ID.', 'info');
-                    return;
-                }
-                
-                addLog('5. Perfil encontrado!', 'ok');
-                addLog(`6. Role: ${profile.role || 'não definido'}`, 'info');
-                addLog(`7. Nome: ${profile.full_name || 'não definido'}`, 'info');
-                
-                addLog('🎉 SUCESSO TOTAL! O login está funcionando.', 'ok');
-                addLog('Você pode agora corrigir o app.js principal usando esta mesma lógica.', 'info');
-                
-            } catch (err) {
-                addLog(`Erro inesperado: ${err.message}`, 'error');
+            if (res.error) {
+                document.getElementById('result').innerText = 'ERRO: ' + res.error.message;
+                alert('ERRO: ' + res.error.message);
+            } else {
+                document.getElementById('result').innerText = 'SUCESSO! User ID: ' + res.data.user.id;
+                alert('SUCESSO! Login funcionou.');
             }
         }
     </script>
