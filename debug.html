@@ -3,28 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔍 Diagnóstico de Login - Grupo BNC RH</title>
+    <title>Teste de Login - Grupo BNC RH</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Courier New', monospace; background: #0f172a; color: #e2e8f0; padding: 2rem; }
-        .log-box { background: #1e293b; border-left: 4px solid #3b82f6; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; }
-        .status-ok { color: #4ade80; border-left-color: #4ade80 !important; }
-        .status-error { color: #f87171; border-left-color: #f87171 !important; }
-        .status-warn { color: #fbbf24; border-left-color: #fbbf24 !important; }
-        .code-snippet { background: #0f172a; padding: 0.5rem; border-radius: 0.25rem; font-size: 0.875rem; overflow-x: auto; margin-top: 0.5rem; }
-        button { background: #ea580c; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer; }
-        button:hover { background: #c2410c; }
+        body { font-family: 'Poppins', sans-serif; background: #f3f4f6; }
+        .log-box { background: white; border-left: 4px solid #ea580c; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .status-ok { border-left-color: #10b981 !important; color: #10b981; }
+        .status-error { border-left-color: #ef4444 !important; color: #ef4444; }
     </style>
 </head>
-<body>
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6 text-blue-400"><i class="fas fa-stethoscope mr-2"></i> Diagnóstico de Login</h1>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">🔐 Teste de Login Direto</h1>
         
-        <button onclick="runDiagnostics()" class="mb-6"><i class="fas fa-sync-alt mr-2"></i> Rodar Diagnóstico Completo</button>
-        
-        <div id="results" class="space-y-4">
-            <p class="text-gray-400">Clique no botão acima para iniciar a investigação...</p>
+        <!-- Formulário -->
+        <form onsubmit="testLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                <input type="email" id="test-email" value="admin@grupobnc.com.br" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                <input type="password" id="test-password" value="BNC@2026#Admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+            </div>
+            <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg transition">Testar Login</button>
+        </form>
+
+        <!-- Área de Logs -->
+        <div id="logs" class="mt-6 space-y-2">
+            <p class="text-gray-500 text-sm text-center">Os resultados aparecerão aqui...</p>
         </div>
     </div>
 
@@ -33,115 +41,63 @@
         const SUPABASE_URL = 'https://rvgcniaowzmsudzliozf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z2NuaWFvd3ptc3Vkemxpb3pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQxNzQsImV4cCI6MjA5MTQwMDE3NH0.uwwKFLuK-XyPoXPrB6_CseRTiD9d-iyMQSPWrFw-l-I';
         
-        let supabaseClient = null;
-
-        function addLog(title, status, message, details = null) {
-            const icon = status === 'ok' ? 'fa-check-circle' : status === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
-            const results = document.getElementById('results');
+        // Inicializa o cliente
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function addLog(message, status = 'info') {
+            const logs = document.getElementById('logs');
+            const colorClass = status === 'ok' ? 'status-ok' : status === 'error' ? 'status-error' : '';
+            const icon = status === 'ok' ? '✅' : status === 'error' ? '❌' : 'ℹ️';
             
-            const html = `
-                <div class="log-box status-${status}">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="font-bold text-lg"><i class="fas ${icon} mr-2"></i>${title}</h3>
-                        <span class="text-xs uppercase font-bold">${status}</span>
-                    </div>
-                    <p class="text-slate-300">${message}</p>
-                    ${details ? `<div class="code-snippet text-slate-400">${details}</div>` : ''}
-                </div>
-            `;
-            results.innerHTML += html;
+            logs.innerHTML += `<div class="log-box ${colorClass}">${icon} ${message}</div>`;
         }
 
-        async function runDiagnostics() {
-            document.getElementById('results').innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i><p class="mt-4">Investigando...</p></div>';
+        async function testLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            const logs = document.getElementById('logs');
             
-            // 1. Verificar Supabase Library
+            logs.innerHTML = '<div class="text-center text-gray-500"><i class="fas fa-spinner fa-spin"></i> Testando...</div>';
+            
             try {
-                if (typeof window.supabase === 'undefined') throw new Error('Biblioteca não carregada');
-                addLog('Biblioteca Supabase', 'ok', 'CDN carregado com sucesso.');
-            } catch (e) {
-                addLog('Biblioteca Supabase', 'error', 'Falha ao carregar biblioteca.', e.message);
-                return;
-            }
-
-            // 2. Inicializar Cliente
-            try {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                addLog('Inicialização do Cliente', 'ok', 'Cliente criado com sucesso.');
-            } catch (e) {
-                addLog('Inicialização do Cliente', 'error', 'Erro ao criar cliente.', e.message);
-                return;
-            }
-
-            // 3. Testar Conexão com API
-            try {
-                const { data, error } = await supabaseClient.from('bnc_contracts').select('count').limit(1);
-                if (error) throw error;
-                addLog('Conexão com API', 'ok', 'Comunicação estabelecida.');
-            } catch (e) {
-                addLog('Conexão com API', 'error', 'Falha na conexão.', `Erro: ${e.message}`);
-            }
-
-            // 4. Verificar Tabelas
-            const tables = ['bnc_profiles', 'bnc_contracts', 'bnc_employees', 'bnc_tasks'];
-            for (const table of tables) {
-                try {
-                    const { error } = await supabaseClient.from(table).select('count').limit(1);
-                    if (error && error.code === '42P01') {
-                        addLog(`Tabela: ${table}`, 'error', 'Tabela não encontrada.', 'Execute o SQL de criação no Supabase SQL Editor.');
-                    } else {
-                        addLog(`Tabela: ${table}`, 'ok', 'Tabela existe e acessível.');
-                    }
-                } catch (e) {
-                    addLog(`Tabela: ${table}`, 'warn', 'Erro inesperado.', e.message);
-                }
-            }
-
-            // 5. Verificar Usuário Admin no Auth
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: 'admin@grupobnc.com.br',
-                    password: 'BNC@2026#Admin'
-                });
+                addLog('1. Iniciando conexão com Supabase...', 'info');
+                
+                // Tenta logar
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 
                 if (error) {
-                    if (error.message.includes('Invalid login credentials')) {
-                        addLog('Usuário Admin (Auth)', 'error', 'Usuário não encontrado ou senha incorreta.', 'Crie o usuário em Authentication > Users no Supabase e defina a senha manualmente.');
-                    } else {
-                        addLog('Usuário Admin (Auth)', 'error', 'Erro ao verificar autenticação.', error.message);
-                    }
-                } else {
-                    addLog('Usuário Admin (Auth)', 'ok', 'Login realizado com sucesso no Auth.');
-                    await supabaseClient.auth.signOut();
+                    addLog(`2. Erro no Auth: ${error.message}`, 'error');
+                    return;
                 }
-            } catch (e) {
-                addLog('Usuário Admin (Auth)', 'error', 'Erro crítico no teste de auth.', e.message);
+                
+                addLog('2. Login no Auth realizado com sucesso!', 'ok');
+                addLog(`3. User ID: ${data.user.id}`, 'info');
+                
+                // Busca perfil
+                addLog('4. Buscando perfil na tabela bnc_profiles...', 'info');
+                const { data: profile, error: profileError } = await supabase
+                    .from('bnc_profiles')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+                    
+                if (profileError) {
+                    addLog(`5. Erro ao buscar perfil: ${profileError.message}`, 'error');
+                    addLog('Dica: Verifique se o usuário tem uma linha na tabela bnc_profiles com o mesmo ID.', 'info');
+                    return;
+                }
+                
+                addLog('5. Perfil encontrado!', 'ok');
+                addLog(`6. Role: ${profile.role || 'não definido'}`, 'info');
+                addLog(`7. Nome: ${profile.full_name || 'não definido'}`, 'info');
+                
+                addLog('🎉 SUCESSO TOTAL! O login está funcionando.', 'ok');
+                addLog('Você pode agora corrigir o app.js principal usando esta mesma lógica.', 'info');
+                
+            } catch (err) {
+                addLog(`Erro inesperado: ${err.message}`, 'error');
             }
-
-            // 6. Verificar Arquivos JS
-            try {
-                const responseConfig = await fetch('./js/config.js');
-                if (!responseConfig.ok) throw new Error('Arquivo não encontrado (404)');
-                addLog('Arquivo: js/config.js', 'ok', 'Arquivo presente e acessível.');
-            } catch (e) {
-                addLog('Arquivo: js/config.js', 'error', 'Arquivo faltando ou caminho incorreto.', 'Certifique-se de que o arquivo está na pasta js/ no GitHub.');
-            }
-
-            try {
-                const responseApp = await fetch('./js/app.js');
-                if (!responseApp.ok) throw new Error('Arquivo não encontrado (404)');
-                addLog('Arquivo: js/app.js', 'ok', 'Arquivo presente e acessível.');
-            } catch (e) {
-                addLog('Arquivo: js/app.js', 'error', 'Arquivo faltando ou caminho incorreto.', 'Certifique-se de que o arquivo está na pasta js/ no GitHub.');
-            }
-
-            // 7. Resumo
-            const errors = document.querySelectorAll('.status-error').length;
-            const summary = errors === 0 
-                ? '<div class="bg-green-900/50 p-6 rounded-xl border border-green-500 mt-8"><h2 class="text-xl font-bold text-green-400 mb-2"><i class="fas fa-check-double mr-2"></i>Sistema Pronto!</h2><p>Todos os testes passaram. O login deve funcionar.</p></div>'
-                : '<div class="bg-red-900/50 p-6 rounded-xl border border-red-500 mt-8"><h2 class="text-xl font-bold text-red-400 mb-2"><i class="fas fa-exclamation-circle mr-2"></i>Erros Encontrados</h2><p>Corrija os itens vermelhos acima antes de tentar logar.</p></div>';
-            
-            document.getElementById('results').innerHTML += summary;
         }
     </script>
 </body>
