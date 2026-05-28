@@ -1,4 +1,4 @@
-// js/app.js - VERSÃO FINAL CORRIGIDA E LIMPA
+// js/app.js - VERSÃO FINAL CORRIGIDA E FUNCIONAL
 // Usa o cliente criado no config.js (window.bncSupabase)
 const supabase = window.bncSupabase;
 
@@ -27,7 +27,7 @@ async function handleLogin(e) {
     btn.disabled = true;
 
     try {
-        console.log(' Tentando login...');
+        console.log('🔐 Tentando login...');
         
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
@@ -50,7 +50,7 @@ async function handleLogin(e) {
         }
         
         currentRole = profile?.role || 'employee';
-        console.log('👤 Role:', currentRole);
+        console.log('👤 Role definida:', currentRole);
         
         // Atualizar UI
         const nameDisplay = document.getElementById('user-name-display');
