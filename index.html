@@ -4,18 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Grupo BNC RH - Plataforma de Gestão</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Configuração de Cores da Marca -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: { light: '#fdba74', DEFAULT: '#ea580c', dark: '#c2410c', darker: '#9a3412' }
+                        brand: { 
+                            light: '#fdba74', 
+                            DEFAULT: '#ea580c', 
+                            dark: '#c2410c', 
+                            darker: '#9a3412' 
+                        }
                     },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                    fontFamily: { 
+                        sans: ['Poppins', 'sans-serif'] 
+                    }
                 }
             }
         }
@@ -23,20 +37,35 @@
 
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        
+        /* Estilos da Sidebar */
         .sidebar-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
-        .sidebar-item:hover, .sidebar-item.active { background-color: rgba(255,255,255,0.1); border-left-color: white; color: white; }
+        .sidebar-item:hover, .sidebar-item.active { 
+            background-color: rgba(255,255,255,0.1); 
+            border-left-color: white; 
+            color: white; 
+        }
+        
+        /* Estilos da Nav Mobile */
         .mobile-nav-item { transition: all 0.2s; }
         .mobile-nav-item.active { color: #ea580c; transform: translateY(-2px); }
+        
+        /* Animações */
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Controle de Visibilidade das Views */
         .view-section { display: none; }
         .view-section.active { display: block; }
     </style>
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50">
 
-    <!-- TELA DE LOGIN -->
+    <!-- ============================================ -->
+    <!-- TELA DE LOGIN                                -->
+    <!-- ============================================ -->
     <div id="login-screen" class="fixed inset-0 z-50 flex flex-col md:flex-row bg-white">
+        <!-- Lado Esquerdo: Branding -->
         <div class="w-full md:w-1/2 bg-brand-dark flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
             <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
             <div class="z-10 text-center">
@@ -45,43 +74,60 @@
                 <h2 class="text-2xl font-light tracking-widest uppercase">RH & Serviços</h2>
             </div>
         </div>
+        
+        <!-- Lado Direito: Formulário -->
         <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
             <div class="w-full max-w-md fade-in">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Acesso ao Sistema</h2>
+                
+                <!-- Formulário Principal -->
                 <form onsubmit="handleLogin(event)" class="space-y-4 mt-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">E-MAIL</label>
-                        <input type="email" id="login-email" placeholder="admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none" required>
+                        <input type="email" id="login-email" placeholder="admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">SENHA</label>
-                        <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none" required>
+                        <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition" required>
                     </div>
-                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition">Entrar</button>
+                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95">Entrar</button>
                 </form>
+                
+                <!-- Link de Recuperação -->
                 <div class="mt-4 text-center">
                     <button onclick="toggleResetForm()" class="text-xs text-brand hover:text-brand-dark font-medium underline">Esqueceu a senha?</button>
                 </div>
                 
-                <!-- Formulário de Reset (Oculto por padrão) -->
+                <!-- Formulário de Reset (Oculto) -->
                 <div id="reset-form" class="hidden mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-600 mb-2">Digite seu e-mail para receber o link de redefinição:</p>
+                    <p class="text-xs text-gray-600 mb-2">Digite seu e-mail para receber o link:</p>
                     <input type="email" id="reset-email" placeholder="seu@email.com" class="w-full px-3 py-2 text-sm rounded border border-gray-300 mb-2 outline-none">
-                    <button onclick="handleResetPassword()" class="w-full bg-gray-800 hover:bg-gray-900 text-white text-sm font-bold py-2 rounded transition">Enviar Link de Recuperação</button>
+                    <button onclick="handleResetPassword()" class="w-full bg-gray-800 hover:bg-gray-900 text-white text-sm font-bold py-2 rounded transition">Enviar Link</button>
                     <button onclick="toggleResetForm()" class="w-full mt-2 text-xs text-gray-500 hover:text-gray-700">Cancelar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- APP PRINCIPAL -->
+    <!-- ============================================ -->
+    <!-- APP PRINCIPAL (DASHBOARD)                    -->
+    <!-- ============================================ -->
     <div id="app-layout" class="hidden w-full h-full flex">
+        
+        <!-- SIDEBAR DESKTOP -->
         <aside class="w-64 bg-brand-darker text-white hidden md:flex flex-col shadow-xl z-20">
             <div class="p-6 flex items-center gap-3 border-b border-white/10">
                 <i class="fas fa-cube text-2xl text-brand-light"></i>
-                <div><h1 class="font-bold text-lg leading-tight">Grupo BNC</h1><span class="text-xs text-brand-light uppercase">RH System</span></div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Grupo BNC</h1>
+                    <span class="text-xs text-brand-light uppercase">RH System</span>
+                </div>
             </div>
+            
+            <!-- Menu Injetado via JS -->
             <nav class="flex-1 py-6 space-y-1 overflow-y-auto" id="desktop-menu"></nav>
+            
+            <!-- Perfil do Usuário -->
             <div class="p-4 border-t border-white/10 bg-brand-darker">
                 <div class="flex items-center gap-3">
                     <img src="" id="user-avatar" class="w-10 h-10 rounded-full border-2 border-brand-light">
@@ -93,20 +139,33 @@
             </div>
         </aside>
 
+        <!-- CONTEÚDO CENTRAL -->
         <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+            
+            <!-- HEADER SUPERIOR -->
             <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-6 z-10">
-                <div class="md:hidden flex items-center gap-3 text-brand-dark"><i class="fas fa-bars text-xl"></i><span class="font-bold">Grupo BNC</span></div>
-                <div class="hidden md:block text-gray-500 text-sm"><i class="far fa-calendar-alt mr-2"></i> <span id="header-date"></span></div>
+                <div class="md:hidden flex items-center gap-3 text-brand-dark">
+                    <i class="fas fa-bars text-xl"></i>
+                    <span class="font-bold">Grupo BNC</span>
+                </div>
+                <div class="hidden md:block text-gray-500 text-sm">
+                    <i class="far fa-calendar-alt mr-2"></i> <span id="header-date"></span>
+                </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-sign-out-alt text-xl"></i></button>
+                    <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition">
+                        <i class="fas fa-sign-out-alt text-xl"></i>
+                    </button>
                 </div>
             </header>
 
+            <!-- ÁREA DE SCROLL E VIEWS -->
             <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50/50">
                 
-                <!-- DASHBOARD ADMIN -->
+                <!-- VIEW: DASHBOARD ADMIN -->
                 <div id="view-admin-dashboard" class="view-section fade-in max-w-7xl mx-auto">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Painel Geral</h2>
+                    
+                    <!-- KPIs -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-brand">
                             <p class="text-gray-500 text-xs font-bold uppercase">Contratos Ativos</p>
@@ -125,39 +184,86 @@
                             <h3 class="text-3xl font-bold text-gray-800 mt-1">R$ 24.800</h3>
                         </div>
                     </div>
+
+                    <!-- Lista de Contratos e Gráfico -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="font-bold text-gray-800 mb-4">Contratos</h3>
+                            <h3 class="font-bold text-gray-800 mb-4">Contratos Recentes</h3>
                             <div id="contracts-list" class="space-y-2">
-                                <div class="text-center text-gray-400 py-4">Carregando...</div>
+                                <div class="text-center text-gray-400 py-4">Carregando dados...</div>
                             </div>
                         </div>
                         <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center justify-center">
                             <h3 class="font-bold text-gray-800 mb-4 w-full text-left">Resumo de Tarefas</h3>
                             <div class="relative w-40 h-40 rounded-full border-8 border-gray-100 flex items-center justify-center mb-4">
                                 <div class="absolute inset-0 rounded-full border-8 border-brand border-t-transparent rotate-45"></div>
-                                <div class="text-center"><span class="block text-2xl font-bold text-gray-800">72%</span><span class="text-xs text-gray-400">Conclusão</span></div>
+                                <div class="text-center">
+                                    <span class="block text-2xl font-bold text-gray-800">72%</span>
+                                    <span class="text-xs text-gray-400">Conclusão</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- PLACEHOLDERS DAS OUTRAS ABAS -->
-                <div id="view-contracts" class="view-section fade-in max-w-7xl mx-auto text-center py-20"><i class="fas fa-file-contract text-6xl text-gray-300 mb-4"></i><h2 class="text-2xl font-bold text-gray-800">Módulo de Contratos</h2></div>
-                <div id="view-employees" class="view-section fade-in max-w-7xl mx-auto text-center py-20"><i class="fas fa-users text-6xl text-gray-300 mb-4"></i><h2 class="text-2xl font-bold text-gray-800">Módulo de Funcionários</h2></div>
-                <div id="view-schedules" class="view-section fade-in max-w-7xl mx-auto text-center py-20"><i class="fas fa-calendar-week text-6xl text-gray-300 mb-4"></i><h2 class="text-2xl font-bold text-gray-800">Escalas e Tarefas</h2></div>
-                <div id="view-financial" class="view-section fade-in max-w-7xl mx-auto text-center py-20"><i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i><h2 class="text-2xl font-bold text-gray-800">Financeiro</h2></div>
-                <div id="view-settings" class="view-section fade-in max-w-7xl mx-auto text-center py-20"><i class="fas fa-cog text-6xl text-gray-300 mb-4"></i><h2 class="text-2xl font-bold text-gray-800">Configurações</h2></div>
-                <div id="view-employee-dashboard" class="view-section fade-in max-w-3xl mx-auto text-center py-20"><i class="fas fa-clipboard-list text-6xl text-gray-300 mb-4"></i><h2 class="text-2xl font-bold text-gray-800">Minhas Tarefas</h2></div>
+                <!-- VIEW: PLACEHOLDERS (Outras Abas) -->
+                <div id="view-contracts" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-file-contract text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Módulo de Contratos</h2>
+                    <p class="text-gray-500">Em desenvolvimento...</p>
+                </div>
+                
+                <div id="view-employees" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Módulo de Funcionários</h2>
+                    <p class="text-gray-500">Em desenvolvimento...</p>
+                </div>
+
+                <div id="view-schedules" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-calendar-week text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Escalas e Tarefas</h2>
+                    <p class="text-gray-500">Em desenvolvimento...</p>
+                </div>
+
+                <div id="view-financial" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Financeiro</h2>
+                    <p class="text-gray-500">Em desenvolvimento...</p>
+                </div>
+
+                <div id="view-settings" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
+                    <i class="fas fa-cog text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Configurações</h2>
+                    <p class="text-gray-500">Em desenvolvimento...</p>
+                </div>
+
+                <div id="view-employee-dashboard" class="view-section fade-in max-w-3xl mx-auto text-center py-20">
+                    <i class="fas fa-clipboard-list text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Minhas Tarefas</h2>
+                    <p class="text-gray-500">Em desenvolvimento...</p>
+                </div>
+
             </div>
         </main>
 
-        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30" id="mobile-menu"></nav>
+        <!-- NAVIGATION MOBILE -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30" id="mobile-menu">
+            <!-- Injetado via JS -->
+        </nav>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- ============================================ -->
+    <!-- SCRIPTS (ORDEM CRÍTICA)                      -->
+    <!-- ============================================ -->
+    
+    <!-- 1. Biblioteca Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js"></script>
-    <script src="js/app.js"></script>
+    
+    <!-- 2. Configuração (Cria o cliente window.bncSupabase) -->
+    <script src="./js/config.js"></script>
+    
+    <!-- 3. Aplicação (Usa o cliente) -->
+    <script src="./js/app.js"></script>
+
 </body>
 </html>
