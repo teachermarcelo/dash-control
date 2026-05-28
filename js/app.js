@@ -1,11 +1,10 @@
-// js/app.js - Lógica Principal do Sistema
-// Usa o cliente criado no config.js
+// js/app.js - VERSÃO FINAL CORRIGIDA E LIMPA
+// Usa o cliente criado no config.js (window.bncSupabase)
 const supabase = window.bncSupabase;
 
 let currentUser = null;
 let currentRole = 'employee';
 
-// Função de Login
 async function handleLogin(e) {
     e.preventDefault();
     
@@ -23,15 +22,13 @@ async function handleLogin(e) {
         return;
     }
     
-    // Feedback visual
     const originalBtnText = btn.innerText;
     btn.innerText = 'Entrando...';
     btn.disabled = true;
 
     try {
-        console.log('🔐 Tentando autenticar...');
+        console.log(' Tentando login...');
         
-        // 1. Login no Auth
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password
@@ -42,7 +39,6 @@ async function handleLogin(e) {
         currentUser = data.user;
         console.log('✅ Usuário autenticado:', currentUser.id);
         
-        // 2. Buscar perfil na tabela bnc_profiles
         const { data: profile, error: profileError } = await supabase
             .from('bnc_profiles')
             .select('role, full_name, region')
@@ -50,23 +46,31 @@ async function handleLogin(e) {
             .single();
             
         if (profileError) {
-            console.warn('⚠️ Perfil não encontrado, usando padrão.', profileError);
+            console.warn('⚠️ Perfil não encontrado.', profileError);
         }
         
         currentRole = profile?.role || 'employee';
-        console.log('👤 Role definida:', currentRole);
+        console.log('👤 Role:', currentRole);
         
-        // 3. Atualizar Interface
-        updateUserInfo(profile, email);
+        // Atualizar UI
+        const nameDisplay = document.getElementById('user-name-display');
+        const roleDisplay = document.getElementById('user-role-display');
+        const avatar = document.getElementById('user-avatar');
         
-        // 4. Trocar Telas
+        if (nameDisplay) nameDisplay.textContent = profile?.full_name || email.split('@')[0];
+        if (roleDisplay) {
+            roleDisplay.textContent = currentRole === 'admin' ? 'Administrador Global' : 
+                                     currentRole === 'manager' ? 'Gestor Regional' : 'Colaborador';
+        }
+        if (avatar) avatar.src = `https://ui-avatars.com/api/?name=${profile?.full_name || 'User'}&background=ea580c&color=fff`;
+        
+        // Trocar Telas
         const loginScreen = document.getElementById('login-screen');
         const appLayout = document.getElementById('app-layout');
         
         if (loginScreen) loginScreen.classList.add('hidden');
         if (appLayout) appLayout.classList.remove('hidden');
         
-        // 5. Carregar Dados
         renderMenu(currentRole);
         loadDashboardData();
         
@@ -81,24 +85,8 @@ async function handleLogin(e) {
     }
 }
 
-function updateUserInfo(profile, emailFallback) {
-    const nameDisplay = document.getElementById('user-name-display');
-    const roleDisplay = document.getElementById('user-role-display');
-    const avatar = document.getElementById('user-avatar');
-    
-    const fullName = profile?.full_name || emailFallback.split('@')[0];
-    const roleLabel = currentRole === 'admin' ? 'Administrador Global' : 
-                      currentRole === 'manager' ? 'Gestor Regional' : 'Colaborador';
-
-    if (nameDisplay) nameDisplay.textContent = fullName;
-    if (roleDisplay) roleDisplay.textContent = roleLabel;
-    if (avatar) avatar.src = `https://ui-avatars.com/api/?name=${fullName}&background=ea580c&color=fff`;
-}
-
-// Carregar Dados do Dashboard
 async function loadDashboardData() {
     try {
-        // Buscar Contratos
         const { data: contracts } = await supabase
             .from('bnc_contracts')
             .select('*')
@@ -107,7 +95,6 @@ async function loadDashboardData() {
         const totalContracts = contracts?.length || 0;
         const totalEmployees = contracts?.reduce((sum, c) => sum + (c.employee_count || 0), 0) || 0;
         
-        // Buscar Tarefas de Hoje
         const today = new Date().toISOString().split('T')[0];
         const { data: tasks } = await supabase
             .from('bnc_tasks')
@@ -117,7 +104,6 @@ async function loadDashboardData() {
         const completedTasks = tasks?.filter(t => t.status === 'completed').length || 0;
         const totalTasks = tasks?.length || 0;
         
-        // Atualizar KPIs
         const kpiContracts = document.getElementById('kpi-contracts');
         const kpiEmployees = document.getElementById('kpi-employees');
         const kpiTasks = document.getElementById('kpi-tasks');
@@ -126,7 +112,6 @@ async function loadDashboardData() {
         if (kpiEmployees) kpiEmployees.textContent = totalEmployees;
         if (kpiTasks) kpiTasks.textContent = `${completedTasks} / ${totalTasks}`;
 
-        // Renderizar Lista de Contratos
         const listContainer = document.getElementById('contracts-list');
         if (listContainer && contracts) {
             if (contracts.length === 0) {
@@ -153,7 +138,6 @@ async function loadDashboardData() {
     }
 }
 
-// Renderizar Menu
 function renderMenu(role) {
     const desktopNav = document.getElementById('desktop-menu');
     const mobileNav = document.getElementById('mobile-menu');
@@ -182,14 +166,12 @@ function renderMenu(role) {
     }
 
     menuItems.forEach((item, index) => {
-        // Item Desktop
         const dLink = document.createElement('a');
         dLink.className = `sidebar-item flex items-center gap-4 px-6 py-3 cursor-pointer ${index === 0 ? 'active' : ''}`;
         dLink.onclick = () => switchView(item.id);
         dLink.innerHTML = `<i class="fas ${item.icon} w-5 text-center"></i> ${item.label}`;
         desktopNav.appendChild(dLink);
 
-        // Item Mobile (apenas os 4 primeiros)
         if (index < 4) {
             const mBtn = document.createElement('button');
             mBtn.className = `mobile-nav-item flex flex-col items-center gap-1 text-gray-400 w-1/4 ${index === 0 ? 'active text-brand' : ''}`;
@@ -200,18 +182,14 @@ function renderMenu(role) {
     });
 }
 
-// Navegação entre Abas
 function switchView(viewId) {
-    // Esconder todas
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
     
-    // Mostrar a alvo
     const targetView = document.getElementById(`view-${viewId}`);
     if (targetView) {
         targetView.classList.add('active');
     }
     
-    // Atualizar Sidebar Desktop
     document.querySelectorAll('.sidebar-item').forEach(item => {
         item.classList.remove('active');
         if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(viewId)) {
@@ -219,7 +197,6 @@ function switchView(viewId) {
         }
     });
     
-    // Atualizar Nav Mobile
     document.querySelectorAll('.mobile-nav-item').forEach(item => {
         item.classList.remove('active', 'text-brand');
         item.classList.add('text-gray-400');
@@ -230,20 +207,17 @@ function switchView(viewId) {
     });
 }
 
-// Logout
 function logout() {
     supabase.auth.signOut().then(() => {
         location.reload();
     });
 }
 
-// Toggle Reset Form
 function toggleResetForm() {
     const form = document.getElementById('reset-form');
     if (form) form.classList.toggle('hidden');
 }
 
-// Reset Password
 async function handleResetPassword() {
     const emailInput = document.getElementById('reset-email');
     const email = emailInput ? emailInput.value.trim() : '';
@@ -272,7 +246,6 @@ async function handleResetPassword() {
     }
 }
 
-// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     const headerDate = document.getElementById('header-date');
     if (headerDate) {
@@ -282,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Exportar funções globais
 window.handleLogin = handleLogin;
 window.toggleResetForm = toggleResetForm;
 window.handleResetPassword = handleResetPassword;
