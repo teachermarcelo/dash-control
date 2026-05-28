@@ -1,4 +1,4 @@
-// js/app.js - Versão Corrigida (sem conflito de declaração)
+// js/app.js - Versão Final Sem Conflitos
 const supabase = window.supabaseClient; // Usa o cliente já criado no config.js
 
 let currentUser = null;
