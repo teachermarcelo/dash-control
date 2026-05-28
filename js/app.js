@@ -1,6 +1,8 @@
-// js/app.js - VERSÃO FINAL CORRETIVA
-// Recupera o cliente criado no config.js (NÃO declara 'const supabase' de novo)
-const supabase = window.bncSupabase; 
+// js/app.js - VERSÃO FINAL FUNCIONAL
+const supabase = window.supabase.createClient(
+  'https://rvgcniaowzmsudzliozf.supabase.co', 
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Z2NuaWFvd3ptc3Vkemxpb3pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQxNzQsImV4cCI6MjA5MTQwMDE3NH0.uwwKFLuK-XyPoXPrB6_CseRTiD9d-iyMQSPWrFw-l-I'
+);
 
 let currentUser = null;
 let currentRole = 'employee';
@@ -18,54 +20,33 @@ async function handleLogin(e) {
     btn.disabled = true;
 
     try {
-        console.log('🔐 Tentando login...');
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        
-        if (error) {
-            console.error('❌ Erro Auth:', error);
-            throw error;
-        }
+        if (error) throw error;
 
         currentUser = data.user;
-        console.log('✅ Usuário autenticado:', currentUser.id);
         
-        // Buscar perfil na tabela bnc_profiles
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile } = await supabase
             .from('bnc_profiles')
             .select('role, full_name, region')
             .eq('id', currentUser.id)
             .single();
             
-        if (profileError) {
-            console.warn('⚠️ Perfil não encontrado, usando padrão.', profileError);
-        }
-        
         currentRole = profile?.role || 'employee';
-        console.log('👤 Role identificada:', currentRole);
         
-        // Atualizar Interface
-        const nameDisplay = document.getElementById('user-name-display');
-        const roleDisplay = document.getElementById('user-role-display');
-        const avatar = document.getElementById('user-avatar');
+        // Atualizar UI
+        document.getElementById('user-name-display').textContent = profile?.full_name || email.split('@')[0];
+        document.getElementById('user-role-display').textContent = currentRole === 'admin' ? 'Administrador Global' : currentRole === 'manager' ? 'Gestor Regional' : 'Colaborador';
+        document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${profile?.full_name || 'User'}&background=ea580c&color=fff`;
         
-        if (nameDisplay) nameDisplay.textContent = profile?.full_name || email.split('@')[0];
-        if (roleDisplay) {
-            roleDisplay.textContent = currentRole === 'admin' ? 'Administrador Global' : 
-                                     currentRole === 'manager' ? 'Gestor Regional' : 'Colaborador';
-        }
-        if (avatar) avatar.src = `https://ui-avatars.com/api/?name=${profile?.full_name || 'User'}&background=ea580c&color=fff`;
-        
-        // Trocar Telas
+        // Trocar telas
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app-layout').classList.remove('hidden');
         
-        // Carregar Menu e Dados
         renderMenu(currentRole);
         loadDashboardData();
         
     } catch (error) {
-        console.error('❌ Falha no login:', error);
-        alert('Erro ao entrar: ' + (error.message || 'Verifique suas credenciais.'));
+        alert('Erro ao entrar: ' + error.message);
     } finally {
         btn.innerText = originalText;
         btn.disabled = false;
@@ -73,33 +54,29 @@ async function handleLogin(e) {
 }
 
 async function loadDashboardData() {
-    try {
-        const { data: contracts } = await supabase.from('bnc_contracts').select('*').eq('status', 'active');
-        const totalContracts = contracts?.length || 0;
-        const totalEmployees = contracts?.reduce((sum, c) => sum + (c.employee_count || 0), 0) || 0;
-        
-        const today = new Date().toISOString().split('T')[0];
-        const { data: tasks } = await supabase.from('bnc_tasks').select('status').eq('scheduled_date', today);
-        const completed = tasks?.filter(t => t.status === 'completed').length || 0;
-        
-        if(document.getElementById('kpi-contracts')) document.getElementById('kpi-contracts').textContent = totalContracts;
-        if(document.getElementById('kpi-employees')) document.getElementById('kpi-employees').textContent = totalEmployees;
-        if(document.getElementById('kpi-tasks')) document.getElementById('kpi-tasks').textContent = `${completed} / ${tasks?.length || 0}`;
+    const { data: contracts } = await supabase.from('bnc_contracts').select('*').eq('status', 'active');
+    const totalContracts = contracts?.length || 0;
+    const totalEmployees = contracts?.reduce((sum, c) => sum + (c.employee_count || 0), 0) || 0;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const { data: tasks } = await supabase.from('bnc_tasks').select('status').eq('scheduled_date', today);
+    const completed = tasks?.filter(t => t.status === 'completed').length || 0;
+    
+    if(document.getElementById('kpi-contracts')) document.getElementById('kpi-contracts').textContent = totalContracts;
+    if(document.getElementById('kpi-employees')) document.getElementById('kpi-employees').textContent = totalEmployees;
+    if(document.getElementById('kpi-tasks')) document.getElementById('kpi-tasks').textContent = `${completed} / ${tasks?.length || 0}`;
 
-        const list = document.getElementById('contracts-list');
-        if (list && contracts) {
-            list.innerHTML = contracts.map(c => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-brand/10 text-brand rounded-lg flex items-center justify-center"><i class="fas fa-building"></i></div>
-                        <div><p class="font-bold text-sm">${c.client_name}</p><p class="text-xs text-gray-500">${c.employee_count} funcionários</p></div>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-400"></i>
+    const list = document.getElementById('contracts-list');
+    if (list && contracts) {
+        list.innerHTML = contracts.map(c => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand/10 text-brand rounded-lg flex items-center justify-center"><i class="fas fa-building"></i></div>
+                    <div><p class="font-bold text-sm">${c.client_name}</p><p class="text-xs text-gray-500">${c.employee_count} funcionários</p></div>
                 </div>
-            `).join('');
-        }
-    } catch (error) {
-        console.error('Erro ao carregar dashboard:', error);
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+        `).join('');
     }
 }
 
