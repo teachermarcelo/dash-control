@@ -1,299 +1,486 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grupo BNC RH - Plataforma de Gestão</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Configuração de Cores -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 
-                            light: '#fdba74', 
-                            DEFAULT: '#ea580c', 
-                            dark: '#c2410c', 
-                            darker: '#9a3412' 
-                        }
-                    },
-                    fontFamily: { 
-                        sans: ['Poppins', 'sans-serif'] 
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Grupo BNC RH - Plataforma de Gestão</title>
 
-    <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
-        .sidebar-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
-        .sidebar-item:hover, .sidebar-item.active { background-color: rgba(255,255,255,0.1); border-left-color: white; color: white; }
-        .mobile-nav-item { transition: all 0.2s; }
-        .mobile-nav-item.active { color: #ea580c; transform: translateY(-2px); }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-    </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              light: '#fdba74',
+              DEFAULT: '#ea580c',
+              dark: '#c2410c',
+              darker: '#9a3412'
+            }
+          },
+          fontFamily: { sans: ['Poppins', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+    .sidebar-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
+    .sidebar-item:hover, .sidebar-item.active { background-color: rgba(255,255,255,0.1); border-left-color: white; color: white; }
+    .mobile-nav-item { transition: all 0.2s; }
+    .mobile-nav-item.active { color: #ea580c; transform: translateY(-2px); }
+    .fade-in { animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+    .modal { display: none; }
+    .modal.active { display: flex; }
+  </style>
 </head>
+
 <body class="h-screen overflow-hidden flex bg-gray-50">
 
-    <!-- TELA DE LOGIN -->
-    <div id="login-screen" class="fixed inset-0 z-50 flex flex-col md:flex-row bg-white">
-        <div class="w-full md:w-1/2 bg-brand-dark flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            <div class="z-10 text-center">
-                <div class="text-6xl mb-4"><i class="fas fa-cube"></i></div>
-                <h1 class="text-4xl font-bold tracking-wider mb-2">Grupo BNC</h1>
-                <h2 class="text-2xl font-light tracking-widest uppercase">RH & Serviços</h2>
-            </div>
-        </div>
-        
-        <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
-            <div class="w-full max-w-md fade-in">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Acesso ao Sistema</h2>
-                
-                <form onsubmit="handleLogin(event)" class="space-y-4 mt-6">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">E-MAIL</label>
-                        <input type="email" id="login-email" placeholder="admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">SENHA</label>
-                        <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition" required>
-                    </div>
-                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95">Entrar</button>
-                </form>
-                
-                <div class="mt-4 text-center">
-                    <button onclick="toggleResetForm()" class="text-xs text-brand hover:text-brand-dark font-medium underline">Esqueceu a senha?</button>
-                </div>
-                
-                <div id="reset-form" class="hidden mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-600 mb-2">Digite seu e-mail para receber o link:</p>
-                    <input type="email" id="reset-email" placeholder="seu@email.com" class="w-full px-3 py-2 text-sm rounded border border-gray-300 mb-2 outline-none">
-                    <button onclick="handleResetPassword()" class="w-full bg-gray-800 hover:bg-gray-900 text-white text-sm font-bold py-2 rounded transition">Enviar Link</button>
-                    <button onclick="toggleResetForm()" class="w-full mt-2 text-xs text-gray-500 hover:text-gray-700">Cancelar</button>
-                </div>
-            </div>
-        </div>
+  <!-- LOADING -->
+  <div id="boot-screen" class="fixed inset-0 z-[70] bg-white flex items-center justify-center">
+    <div class="text-center">
+      <i class="fas fa-cube text-5xl text-brand mb-4"></i>
+      <p class="text-sm font-semibold text-gray-500">Carregando sistema...</p>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="login-screen" class="fixed inset-0 z-50 hidden flex-col md:flex-row bg-white">
+    <div class="w-full md:w-1/2 bg-brand-dark flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+      <div class="z-10 text-center">
+        <div class="text-6xl mb-4"><i class="fas fa-cube"></i></div>
+        <h1 class="text-4xl font-bold tracking-wider mb-2">Grupo BNC</h1>
+        <h2 class="text-2xl font-light tracking-widest uppercase">RH & Serviços</h2>
+      </div>
     </div>
 
-    <!-- APP PRINCIPAL -->
-    <div id="app-layout" class="hidden w-full h-full flex">
-        <aside class="w-64 bg-brand-darker text-white hidden md:flex flex-col shadow-xl z-20">
-            <div class="p-6 flex items-center gap-3 border-b border-white/10">
-                <i class="fas fa-cube text-2xl text-brand-light"></i>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">Grupo BNC</h1>
-                    <span class="text-xs text-brand-light uppercase">RH System</span>
-                </div>
-            </div>
-            <nav class="flex-1 py-6 space-y-1 overflow-y-auto" id="desktop-menu"></nav>
-            <div class="p-4 border-t border-white/10 bg-brand-darker">
-                <div class="flex items-center gap-3">
-                    <img src="" id="user-avatar" class="w-10 h-10 rounded-full border-2 border-brand-light">
-                    <div>
-                        <p class="text-sm font-semibold" id="user-name-display">Usuário</p>
-                        <p class="text-xs text-brand-light" id="user-role-display">Role</p>
-                    </div>
-                </div>
-            </div>
-        </aside>
+    <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
+      <div class="w-full max-w-md fade-in">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Acesso ao Sistema</h2>
+        <p class="text-sm text-gray-500">Entre com seu e-mail e senha cadastrados.</p>
 
-        <main class="flex-1 flex flex-col h-full overflow-hidden relative">
-            <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-6 z-10">
-                <div class="md:hidden flex items-center gap-3 text-brand-dark">
-                    <i class="fas fa-bars text-xl"></i>
-                    <span class="font-bold">Grupo BNC</span>
-                </div>
-                <div class="hidden md:block text-gray-500 text-sm">
-                    <i class="far fa-calendar-alt mr-2"></i> <span id="header-date"></span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition">
-                        <i class="fas fa-sign-out-alt text-xl"></i>
-                    </button>
-                </div>
-            </header>
+        <form onsubmit="handleLogin(event)" class="space-y-4 mt-6">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">E-mail</label>
+            <input type="email" id="login-email" autocomplete="email" placeholder="admin@grupobnc.com.br" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition" required>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Senha</label>
+            <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand outline-none transition" required>
+          </div>
+          <button type="submit" id="login-button" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95">Entrar</button>
+        </form>
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50/50">
-                
-                <!-- DASHBOARD ADMIN -->
-                <div id="view-admin-dashboard" class="view-section fade-in max-w-7xl mx-auto">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Painel Geral</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-brand">
-                            <p class="text-gray-500 text-xs font-bold uppercase">Contratos Ativos</p>
-                            <h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-contracts">0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500">
-                            <p class="text-gray-500 text-xs font-bold uppercase">Funcionários Ativos</p>
-                            <h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-employees">0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500">
-                            <p class="text-gray-500 text-xs font-bold uppercase">Tarefas de Hoje</p>
-                            <h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-tasks">0 / 0</h3>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500">
-                            <p class="text-gray-500 text-xs font-bold uppercase">Pagamentos Pendentes</p>
-                            <h3 class="text-3xl font-bold text-gray-800 mt-1">R$ 24.800</h3>
-                        </div>
-                    </div>
+        <div class="mt-4 text-center">
+          <button onclick="toggleResetForm()" class="text-xs text-brand hover:text-brand-dark font-medium underline">Esqueceu a senha?</button>
+        </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="font-bold text-gray-800 mb-4">Contratos Recentes</h3>
-                            <div id="contracts-list" class="space-y-2">
-                                <div class="text-center text-gray-400 py-4">Carregando dados...</div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center justify-center">
-                            <h3 class="font-bold text-gray-800 mb-4 w-full text-left">Resumo de Tarefas</h3>
-                            <div class="relative w-40 h-40 rounded-full border-8 border-gray-100 flex items-center justify-center mb-4">
-                                <div class="absolute inset-0 rounded-full border-8 border-brand border-t-transparent rotate-45"></div>
-                                <div class="text-center">
-                                    <span class="block text-2xl font-bold text-gray-800">72%</span>
-                                    <span class="text-xs text-gray-400">Conclusão</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VIEW: FUNCIONÁRIOS -->
-                <div id="view-employees" class="view-section fade-in max-w-7xl mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Gestão de Funcionários</h2>
-                        <button onclick="openEmployeeModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg shadow flex items-center gap-2 transition">
-                            <i class="fas fa-plus"></i> Novo Funcionário
-                        </button>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
-                                    <tr>
-                                        <th class="p-4">Funcionário</th>
-                                        <th class="p-4">Cargo / Função</th>
-                                        <th class="p-4">Contrato Vinculado</th>
-                                        <th class="p-4">Status</th>
-                                        <th class="p-4 text-right">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="employees-list" class="divide-y divide-gray-100 text-sm">
-                                    <tr><td colspan="5" class="p-4 text-center text-gray-400">Carregando...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MODAL DE CADASTRO/EDIÇÃO -->
-                <div id="employee-modal" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center backdrop-blur-sm">
-                    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative fade-in">
-                        <button onclick="closeEmployeeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mb-4" id="modal-title">Novo Funcionário</h3>
-                        
-                        <form onsubmit="saveEmployee(event)" class="space-y-4">
-                            <input type="hidden" id="emp-id">
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome Completo</label>
-                                    <input type="text" id="emp-name" required class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">CPF</label>
-                                    <input type="text" id="emp-cpf" placeholder="000.000.000-00" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Telefone</label>
-                                    <input type="tel" id="emp-phone" placeholder="(00) 00000-0000" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cargo</label>
-                                    <input type="text" id="emp-role" placeholder="Ex: Auxiliar de Limpeza" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Vincular ao Contrato</label>
-                                <select id="emp-contract" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none bg-white">
-                                    <option value="">Selecione um contrato...</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                                <select id="emp-status" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none bg-white">
-                                    <option value="active">Ativo</option>
-                                    <option value="inactive">Inativo</option>
-                                </select>
-                            </div>
-
-                            <div class="pt-4 flex justify-end gap-3">
-                                <button type="button" onclick="closeEmployeeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
-                                <button type="submit" class="px-6 py-2 bg-brand hover:bg-brand-dark text-white font-bold rounded-lg shadow transition">Salvar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- PLACEHOLDERS DAS OUTRAS ABAS -->
-                <div id="view-contracts" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
-                    <i class="fas fa-file-contract text-6xl text-gray-300 mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800">Módulo de Contratos</h2>
-                    <p class="text-gray-500">Em desenvolvimento...</p>
-                </div>
-                <div id="view-schedules" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
-                    <i class="fas fa-calendar-week text-6xl text-gray-300 mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800">Escalas e Tarefas</h2>
-                    <p class="text-gray-500">Em desenvolvimento...</p>
-                </div>
-                <div id="view-financial" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
-                    <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800">Financeiro</h2>
-                    <p class="text-gray-500">Em desenvolvimento...</p>
-                </div>
-                <div id="view-settings" class="view-section fade-in max-w-7xl mx-auto text-center py-20">
-                    <i class="fas fa-cog text-6xl text-gray-300 mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800">Configurações</h2>
-                    <p class="text-gray-500">Em desenvolvimento...</p>
-                </div>
-                <div id="view-employee-dashboard" class="view-section fade-in max-w-3xl mx-auto text-center py-20">
-                    <i class="fas fa-clipboard-list text-6xl text-gray-300 mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800">Minhas Tarefas</h2>
-                    <p class="text-gray-500">Em desenvolvimento...</p>
-                </div>
-
-            </div>
-        </main>
-
-        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3 pb-safe z-30" id="mobile-menu"></nav>
+        <div id="reset-form" class="hidden mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p class="text-xs text-gray-600 mb-2">Digite seu e-mail para receber o link:</p>
+          <input type="email" id="reset-email" placeholder="seu@email.com" class="w-full px-3 py-2 text-sm rounded border border-gray-300 mb-2 outline-none">
+          <button onclick="handleResetPassword(event)" class="w-full bg-gray-800 hover:bg-gray-900 text-white text-sm font-bold py-2 rounded transition">Enviar Link</button>
+          <button onclick="toggleResetForm()" class="w-full mt-2 text-xs text-gray-500 hover:text-gray-700">Cancelar</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- SCRIPTS (ORDEM CRÍTICA) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./js/config.js"></script>
-    <script src="./js/app.js"></script>
+  <!-- APP -->
+  <div id="app-layout" class="hidden w-full h-full flex">
+    <aside class="w-64 bg-brand-darker text-white hidden md:flex flex-col shadow-xl z-20">
+      <div class="p-6 flex items-center gap-3 border-b border-white/10">
+        <i class="fas fa-cube text-2xl text-brand-light"></i>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Grupo BNC</h1>
+          <span class="text-xs text-brand-light uppercase">RH System</span>
+        </div>
+      </div>
 
+      <nav class="flex-1 py-6 space-y-1 overflow-y-auto" id="desktop-menu"></nav>
+
+      <div class="p-4 border-t border-white/10 bg-brand-darker">
+        <div class="flex items-center gap-3">
+          <img src="" id="user-avatar" class="w-10 h-10 rounded-full border-2 border-brand-light" alt="Avatar">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold truncate" id="user-name-display">Usuário</p>
+            <p class="text-xs text-brand-light" id="user-role-display">Role</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+      <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-6 z-10">
+        <div class="md:hidden flex items-center gap-3 text-brand-dark">
+          <i class="fas fa-cube text-xl"></i>
+          <span class="font-bold">Grupo BNC</span>
+        </div>
+        <div class="hidden md:block text-gray-500 text-sm">
+          <i class="far fa-calendar-alt mr-2"></i><span id="header-date"></span>
+        </div>
+        <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition" title="Sair">
+          <i class="fas fa-sign-out-alt text-xl"></i>
+        </button>
+      </header>
+
+      <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50/50 pb-24 md:pb-8">
+
+        <!-- DASHBOARD ADMIN/MANAGER -->
+        <section id="view-admin-dashboard" class="view-section fade-in max-w-7xl mx-auto">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Painel Geral</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-brand">
+              <p class="text-gray-500 text-xs font-bold uppercase">Contratos Ativos</p>
+              <h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-contracts">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500">
+              <p class="text-gray-500 text-xs font-bold uppercase">Funcionários Ativos</p>
+              <h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-employees">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500">
+              <p class="text-gray-500 text-xs font-bold uppercase">Tarefas de Hoje</p>
+              <h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-tasks">0 / 0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500">
+              <p class="text-gray-500 text-xs font-bold uppercase">Receita Ativa</p>
+              <h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-revenue">R$ 0,00</h3>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800">Contratos Recentes</h3>
+                <button onclick="switchView('contracts')" class="text-xs font-bold text-brand hover:underline">Ver todos</button>
+              </div>
+              <div id="dashboard-contracts-list" class="space-y-2"></div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+              <h3 class="font-bold text-gray-800 mb-4">Resumo de Tarefas</h3>
+              <div id="dashboard-tasks-summary" class="text-sm text-gray-600">Carregando...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONTRATOS -->
+        <section id="view-contracts" class="view-section fade-in max-w-7xl mx-auto">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Contratos</h2>
+              <p class="text-sm text-gray-500">Cadastre e gerencie clientes/contratos.</p>
+            </div>
+            <button onclick="openContractModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg shadow flex items-center justify-center gap-2 transition">
+              <i class="fas fa-plus"></i> Novo Contrato
+            </button>
+          </div>
+
+          <div class="bg-white p-4 rounded-xl shadow-sm mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input id="contract-search" oninput="filterContracts()" placeholder="Buscar cliente, CNPJ ou responsável..." class="px-3 py-2 border rounded-lg outline-none focus:border-brand md:col-span-2">
+            <select id="contract-status-filter" onchange="filterContracts()" class="px-3 py-2 border rounded-lg outline-none focus:border-brand bg-white">
+              <option value="">Todos os status</option>
+              <option value="active">Ativo</option>
+              <option value="paused">Pausado</option>
+              <option value="closed">Encerrado</option>
+            </select>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
+                  <tr>
+                    <th class="p-4">Cliente</th>
+                    <th class="p-4">Responsável</th>
+                    <th class="p-4">Funcionários</th>
+                    <th class="p-4">Valor Mensal</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="contracts-table" class="divide-y divide-gray-100 text-sm">
+                  <tr><td colspan="6" class="p-4 text-center text-gray-400">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- FUNCIONÁRIOS -->
+        <section id="view-employees" class="view-section fade-in max-w-7xl mx-auto">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Funcionários</h2>
+              <p class="text-sm text-gray-500">Cadastre colaboradores e vincule aos contratos.</p>
+            </div>
+            <button onclick="openEmployeeModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg shadow flex items-center justify-center gap-2 transition">
+              <i class="fas fa-plus"></i> Novo Funcionário
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
+                  <tr>
+                    <th class="p-4">Funcionário</th>
+                    <th class="p-4">Cargo / Função</th>
+                    <th class="p-4">Contrato</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="employees-list" class="divide-y divide-gray-100 text-sm">
+                  <tr><td colspan="5" class="p-4 text-center text-gray-400">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ESCALAS -->
+        <section id="view-schedules" class="view-section fade-in max-w-7xl mx-auto">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Escalas e Tarefas</h2>
+              <p class="text-sm text-gray-500">Controle tarefas por data, funcionário e contrato.</p>
+            </div>
+            <button onclick="openTaskModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg shadow flex items-center justify-center gap-2 transition">
+              <i class="fas fa-plus"></i> Nova Tarefa
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
+                  <tr>
+                    <th class="p-4">Data</th>
+                    <th class="p-4">Funcionário</th>
+                    <th class="p-4">Contrato</th>
+                    <th class="p-4">Tarefa</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tasks-list" class="divide-y divide-gray-100 text-sm">
+                  <tr><td colspan="6" class="p-4 text-center text-gray-400">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- FINANCEIRO -->
+        <section id="view-financial" class="view-section fade-in max-w-7xl mx-auto">
+          <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+            <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800">Financeiro</h2>
+            <p class="text-gray-500 mt-2">Estrutura preparada. A implementação completa entra na próxima etapa.</p>
+          </div>
+        </section>
+
+        <!-- CONFIGURAÇÕES -->
+        <section id="view-settings" class="view-section fade-in max-w-7xl mx-auto">
+          <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+            <i class="fas fa-cog text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800">Configurações</h2>
+            <p class="text-gray-500 mt-2">Estrutura preparada. A implementação completa entra na próxima etapa.</p>
+          </div>
+        </section>
+
+        <!-- DASHBOARD FUNCIONÁRIO -->
+        <section id="view-employee-dashboard" class="view-section fade-in max-w-4xl mx-auto">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Minhas Tarefas</h2>
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div id="my-tasks-list" class="space-y-3">Carregando...</div>
+          </div>
+        </section>
+
+        <!-- PERFIL -->
+        <section id="view-profile" class="view-section fade-in max-w-3xl mx-auto">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Meu Perfil</h2>
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div id="profile-box" class="text-sm text-gray-600">Carregando...</div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3 z-30" id="mobile-menu"></nav>
+  </div>
+
+  <!-- MODAL CONTRATO -->
+  <div id="contract-modal" class="modal fixed inset-0 z-50 bg-black/50 items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative fade-in max-h-[90vh] overflow-y-auto">
+      <button onclick="closeContractModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+      <h3 class="text-xl font-bold text-gray-800 mb-4" id="contract-modal-title">Novo Contrato</h3>
+
+      <form onsubmit="saveContract(event)" class="space-y-4">
+        <input type="hidden" id="contract-id">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Cliente</label>
+            <input id="contract-client-name" required class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">CNPJ</label>
+            <input id="contract-cnpj" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Responsável</label>
+            <input id="contract-contact-name" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Telefone</label>
+            <input id="contract-phone" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Região</label>
+            <input id="contract-region" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Funcionários</label>
+            <input id="contract-employee-count" type="number" min="0" value="0" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Mensal</label>
+            <input id="contract-monthly-value" type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
+            <select id="contract-status" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand bg-white">
+              <option value="active">Ativo</option>
+              <option value="paused">Pausado</option>
+              <option value="closed">Encerrado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data de Início</label>
+            <input id="contract-start-date" type="date" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observações</label>
+          <textarea id="contract-notes" rows="3" class="w-full px-3 py-2 border rounded-lg outline-none focus:border-brand"></textarea>
+        </div>
+
+        <div class="pt-4 flex justify-end gap-3">
+          <button type="button" onclick="closeContractModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+          <button type="submit" class="px-6 py-2 bg-brand hover:bg-brand-dark text-white font-bold rounded-lg shadow transition">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL FUNCIONÁRIO -->
+  <div id="employee-modal" class="modal fixed inset-0 z-50 bg-black/50 items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative fade-in">
+      <button onclick="closeEmployeeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+      <h3 class="text-xl font-bold text-gray-800 mb-4" id="employee-modal-title">Novo Funcionário</h3>
+
+      <form onsubmit="saveEmployee(event)" class="space-y-4">
+        <input type="hidden" id="emp-id">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome Completo</label>
+            <input type="text" id="emp-name" required class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">CPF</label>
+            <input type="text" id="emp-cpf" placeholder="000.000.000-00" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Telefone</label>
+            <input type="tel" id="emp-phone" placeholder="(00) 00000-0000" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cargo</label>
+            <input type="text" id="emp-role" placeholder="Ex: Auxiliar de Limpeza" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Contrato</label>
+          <select id="emp-contract" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none bg-white">
+            <option value="">Selecione um contrato...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
+          <select id="emp-status" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none bg-white">
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+          </select>
+        </div>
+
+        <div class="pt-4 flex justify-end gap-3">
+          <button type="button" onclick="closeEmployeeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+          <button type="submit" class="px-6 py-2 bg-brand hover:bg-brand-dark text-white font-bold rounded-lg shadow transition">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL TAREFA -->
+  <div id="task-modal" class="modal fixed inset-0 z-50 bg-black/50 items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl p-6 relative fade-in">
+      <button onclick="closeTaskModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+      <h3 class="text-xl font-bold text-gray-800 mb-4" id="task-modal-title">Nova Tarefa</h3>
+
+      <form onsubmit="saveTask(event)" class="space-y-4">
+        <input type="hidden" id="task-id">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data</label>
+            <input type="date" id="task-date" required class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
+            <select id="task-status" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none bg-white">
+              <option value="pending">Pendente</option>
+              <option value="in_progress">Em andamento</option>
+              <option value="completed">Concluída</option>
+              <option value="cancelled">Cancelada</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Funcionário</label>
+          <select id="task-employee" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none bg-white">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Contrato</label>
+          <select id="task-contract" class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none bg-white">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição da tarefa</label>
+          <textarea id="task-description" rows="3" required class="w-full px-3 py-2 border rounded-lg focus:border-brand outline-none"></textarea>
+        </div>
+
+        <div class="pt-4 flex justify-end gap-3">
+          <button type="button" onclick="closeTaskModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
+          <button type="submit" class="px-6 py-2 bg-brand hover:bg-brand-dark text-white font-bold rounded-lg shadow transition">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>
