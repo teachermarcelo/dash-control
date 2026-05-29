@@ -12,6 +12,15 @@ let contractsCache = [];
 let employeesCache = [];
 let tasksCache = [];
 
+const APP_TIMEOUT_MS = 8000;
+
+function withTimeout(promise, label = 'operação') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(label + ' demorou demais. Verifique conexão, Supabase, RLS ou cache do GitHub.')), APP_TIMEOUT_MS))
+  ]);
+}
+
 // ============================================
 // BOOT / SESSÃO
 // ============================================
@@ -20,16 +29,16 @@ document.addEventListener('DOMContentLoaded', initApp);
 
 async function initApp() {
   setHeaderDate();
+  hideBoot();
+  showLogin();
 
   if (!supabase) {
-    hideBoot();
-    showLogin();
     alert('Erro: Supabase não inicializado. Confira se js/config.js está carregando antes de js/app.js.');
     return;
   }
 
   try {
-    const { data, error } = await supabase.auth.getSession();
+    const { data, error } = await withTimeout(supabase.auth.getSession(), 'Recuperar sessão');
     if (error) {
       console.warn('Erro ao recuperar sessão:', error);
       await forceLogout(false);
@@ -39,15 +48,11 @@ async function initApp() {
     const session = data?.session;
     if (session?.user) {
       currentUser = session.user;
-      await enterApplication();
-    } else {
-      showLogin();
+      await withTimeout(enterApplication(), 'Entrar no sistema');
     }
   } catch (error) {
     console.error('Erro no boot:', error);
     showLogin();
-  } finally {
-    hideBoot();
   }
 
   supabase.auth.onAuthStateChange(async (event, session) => {
@@ -60,7 +65,13 @@ async function initApp() {
 
     if (event === 'SIGNED_IN' && session?.user) {
       currentUser = session.user;
-      await enterApplication();
+      try {
+        await withTimeout(enterApplication(), 'Entrar no sistema');
+      } catch (error) {
+        console.error('Erro pós-login:', error);
+        alert('Erro ao abrir o sistema: ' + error.message);
+        showLogin();
+      }
     }
   });
 }
@@ -105,11 +116,14 @@ async function enterApplication() {
 async function loadCurrentProfile() {
   if (!currentUser?.id) return;
 
-  const { data, error } = await supabase
-    .from('bnc_profiles')
-    .select('*')
-    .eq('id', currentUser.id)
-    .maybeSingle();
+  const { data, error } = await withTimeout(
+    supabase
+      .from('bnc_profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .maybeSingle(),
+    'Consultar perfil'
+  );
 
   if (error) {
     console.warn('Perfil não encontrado ou sem permissão:', error.message);
@@ -156,11 +170,14 @@ async function handleLogin(e) {
     // Limpa qualquer sessão antiga presa no navegador.
     await supabase.auth.signOut();
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await withTimeout(
+      supabase.auth.signInWithPassword({ email, password }),
+      'Login no Supabase'
+    );
     if (error) throw error;
 
     currentUser = data.user;
-    await enterApplication();
+    await withTimeout(enterApplication(), 'Carregar dashboard');
   } catch (error) {
     console.error('Erro no login:', error);
 
