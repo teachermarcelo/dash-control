@@ -12,7 +12,7 @@ let contractsCache = [];
 let employeesCache = [];
 let tasksCache = [];
 
-const APP_TIMEOUT_MS = 8000;
+const APP_TIMEOUT_MS = 5000;
 
 function withTimeout(promise, label = 'operação') {
   return Promise.race([
@@ -104,13 +104,45 @@ function showApp() {
 }
 
 async function enterApplication() {
-  await loadCurrentProfile();
+  // IMPORTANTE: mostra o sistema logo após autenticar.
+  // A consulta ao perfil não pode travar o login.
+  applyFallbackProfile();
   updateUserInfo();
   renderMenu(currentRole);
   showApp();
 
   const initialView = isAdminLike() ? 'admin-dashboard' : 'employee-dashboard';
   switchView(initialView);
+
+  // Atualiza o perfil real em segundo plano. Se bnc_profiles estiver com RLS ou schema errado,
+  // o usuário ainda entra no sistema e o erro aparece apenas no console.
+  loadCurrentProfile()
+    .then(() => {
+      updateUserInfo();
+      renderMenu(currentRole);
+      const correctedView = isAdminLike() ? 'admin-dashboard' : 'employee-dashboard';
+      const active = document.querySelector('.view-section.active')?.id?.replace('view-', '');
+      if (!active || active === 'employee-dashboard' || active === 'admin-dashboard') switchView(correctedView);
+    })
+    .catch((error) => console.warn('Perfil não carregou, usando perfil provisório:', error.message));
+}
+
+function applyFallbackProfile() {
+  const email = currentUser?.email || '';
+  let fallbackRole = 'employee';
+
+  if (email === 'admin@grupobnc.com.br') fallbackRole = 'admin';
+  if (email === 'responsavel.teste@grupobnc.com.br') fallbackRole = 'manager';
+  if (email === 'funcionario.teste@grupobnc.com.br') fallbackRole = 'employee';
+
+  currentProfile = {
+    id: currentUser?.id || '',
+    email,
+    full_name: email ? email.split('@')[0] : 'Usuário',
+    role: fallbackRole,
+    region: ''
+  };
+  currentRole = fallbackRole;
 }
 
 async function loadCurrentProfile() {
@@ -167,8 +199,8 @@ async function handleLogin(e) {
   setButtonLoading(btn, true, 'Entrando...');
 
   try {
-    // Limpa qualquer sessão antiga presa no navegador.
-    await supabase.auth.signOut();
+    // Limpa qualquer sessão antiga presa no navegador, mas sem deixar o botão travado se o logout falhar.
+    try { await withTimeout(supabase.auth.signOut(), 'Limpar sessão antiga'); } catch (_) {}
 
     const { data, error } = await withTimeout(
       supabase.auth.signInWithPassword({ email, password }),
@@ -958,7 +990,7 @@ async function safeSelect(table, columns = '*', options = {}) {
     if (options.eq) query = query.eq(options.eq[0], options.eq[1]);
     if (options.order) query = query.order(options.order[0], { ascending: options.order[1] });
 
-    const { data, error } = await query;
+    const { data, error } = await withTimeout(query, `Consultar ${table}`);
     if (error) {
       console.warn(`Tabela ${table}:`, error.message);
       return { data: [], error };
