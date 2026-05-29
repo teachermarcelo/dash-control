@@ -44,16 +44,8 @@
 
 <body class="h-screen overflow-hidden flex bg-gray-50">
 
-  <!-- LOADING -->
-  <div id="boot-screen" class="fixed inset-0 z-[70] bg-white flex items-center justify-center">
-    <div class="text-center">
-      <i class="fas fa-cube text-5xl text-brand mb-4"></i>
-      <p class="text-sm font-semibold text-gray-500">Carregando sistema...</p>
-    </div>
-  </div>
-
   <!-- LOGIN -->
-  <div id="login-screen" class="fixed inset-0 z-50 hidden flex-col md:flex-row bg-white">
+  <div id="login-screen" class="fixed inset-0 z-50 flex flex-col md:flex-row bg-white">
     <div class="w-full md:w-1/2 bg-brand-dark flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
       <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
       <div class="z-10 text-center">
@@ -480,7 +472,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js"></script>
-  <script src="./js/app.js"></script>
+  <script src="./js/config.js?v=20260529-fix2"></script>
+  <script src="./js/app.js?v=20260529-fix2"></script>
 </body>
 </html>
